@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import './themes.css';
+
+@layer base {
+  html {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans Arabic', sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+  }
+}
