@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\PermissionController;
+use App\Http\Controllers\Admin\CategoryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -44,6 +45,15 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::prefix('permissions')->name('admin.permissions.')->group(function () {
         Route::get('/', [PermissionController::class, 'index'])->name('index');
         Route::post('/update', [PermissionController::class, 'update'])->name('update');
+    });
+
+    Route::prefix('categories')->name('admin.categories.')->group(function () {
+        Route::get('/', [CategoryController::class, 'index'])->name('index');
+        Route::get('/create', [CategoryController::class, 'create'])->name('create');
+        Route::post('/', [CategoryController::class, 'store'])->name('store');
+        Route::get('/{category}/edit', [CategoryController::class, 'edit'])->name('edit');
+        Route::put('/{category}', [CategoryController::class, 'update'])->name('update');
+        Route::post('/{category}/toggle-status', [CategoryController::class, 'toggleStatus'])->name('toggle-status');
     });
 });
 
