@@ -37,6 +37,10 @@ class DatabaseSeeder extends Seeder
 
         $rolePermissions = [];
         foreach ($permissionRows as $perm) {
+            // create_order is client-only — skip for admin
+            if ($perm->key === 'create_order') {
+                continue;
+            }
             $rolePermissions[] = [
                 'role'          => 'admin',
                 'permission_id' => $perm->id,
@@ -46,6 +50,16 @@ class DatabaseSeeder extends Seeder
         }
 
         DB::table('role_permissions')->insert($rolePermissions);
+
+        $createOrderPerm = DB::table('permissions')->where('key', 'create_order')->first();
+        if ($createOrderPerm) {
+            DB::table('role_permissions')->insert([
+                'role'          => 'client',
+                'permission_id' => $createOrderPerm->id,
+                'created_at'    => now(),
+                'updated_at'    => now(),
+            ]);
+        }
 
         $categories = [
             ['name' => 'رواتب',         'type' => 'payment', 'is_active' => true, 'created_at' => now(), 'updated_at' => now()],

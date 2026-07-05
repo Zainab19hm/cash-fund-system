@@ -221,4 +221,151 @@ class RegressionTest extends TestCase
         $response->assertSee('dir="rtl"', false);
         $response->assertSee('lang="ar"', false);
     }
+
+    // ── Phase 4A Regression ────────────────────────────────────────
+
+    public function test_orders_fund_table_exists(): void
+    {
+        $this->seedAndLogin();
+        $this->assertTrue(DB::getSchemaBuilder()->hasTable('orders_fund'));
+    }
+
+    public function test_order_items_table_exists(): void
+    {
+        $this->seedAndLogin();
+        $this->assertTrue(DB::getSchemaBuilder()->hasTable('order_items'));
+    }
+
+    public function test_documents_table_exists(): void
+    {
+        $this->seedAndLogin();
+        $this->assertTrue(DB::getSchemaBuilder()->hasTable('documents'));
+    }
+
+    public function test_order_number_sequences_table_exists(): void
+    {
+        $this->seedAndLogin();
+        $this->assertTrue(DB::getSchemaBuilder()->hasTable('order_number_sequences'));
+    }
+
+    public function test_client_order_routes_registered(): void
+    {
+        $this->seedAndLogin();
+        $routes = [
+            'client.orders.index',
+            'client.orders.create',
+            'client.orders.store',
+        ];
+        foreach ($routes as $routeName) {
+            $this->assertNotEmpty(route($routeName), "Route '{$routeName}' should be registered");
+        }
+    }
+
+    public function test_order_number_generation_works(): void
+    {
+        $this->seedAndLogin();
+        $service = new \App\Services\OrderNumberService();
+        $number = $service->generate();
+        $this->assertMatchesRegularExpression('/^ORD-\d{4}-\d{3}$/', $number);
+    }
+
+    public function test_status_badge_component_file_exists(): void
+    {
+        $this->assertFileExists(
+            resource_path('views/components/status-badge.blade.php'),
+            'status-badge component file must exist'
+        );
+    }
+
+    public function test_status_badge_component_contains_all_statuses(): void
+    {
+        $content = file_get_contents(resource_path('views/components/status-badge.blade.php'));
+        $statuses = ['DRAFT', 'PENDING', 'APPROVED', 'REJECTED', 'EXECUTED', 'CANCELLED'];
+        foreach ($statuses as $status) {
+            $this->assertStringContainsString($status, $content);
+        }
+    }
+
+    public function test_create_order_permission_exists_in_database(): void
+    {
+        $this->seedAndLogin();
+        $perm = DB::table('permissions')->where('key', 'create_order')->first();
+        $this->assertNotNull($perm);
+    }
+
+    public function test_order_model_exists_and_isfillable(): void
+    {
+        $this->seedAndLogin();
+        $model = new \App\Models\OrderFund();
+        $this->assertContains('order_number', $model->getFillable());
+        $this->assertContains('status', $model->getFillable());
+    }
+
+    public function test_order_item_model_exists_and_isfillable(): void
+    {
+        $this->seedAndLogin();
+        $model = new \App\Models\OrderItem();
+        $this->assertContains('order_id', $model->getFillable());
+        $this->assertContains('category_id', $model->getFillable());
+    }
+
+    public function test_document_model_exists_and_isfillable(): void
+    {
+        $this->seedAndLogin();
+        $model = new \App\Models\Document();
+        $this->assertContains('order_id', $model->getFillable());
+        $this->assertContains('file_path', $model->getFillable());
+    }
+
+    public function test_admin_cannot_access_client_order_routes(): void
+    {
+        $this->seedAndLogin();
+        $response = $this->get(route('client.orders.index'));
+        $response->assertStatus(403);
+    }
+
+    public function test_categories_accessible_after_new_migrations(): void
+    {
+        $this->seedAndLogin();
+        $count = DB::table('categories')->count();
+        $this->assertEquals(6, $count);
+    }
+
+    public function test_permissions_system_intact_after_new_migrations(): void
+    {
+        $this->seedAndLogin();
+        $permCount = DB::table('permissions')->count();
+        $this->assertEquals(8, $permCount);
+
+        $adminPerms = DB::table('role_permissions')
+            ->where('role', 'admin')
+            ->count();
+        $this->assertEquals(7, $adminPerms);
+    }
+
+    public function test_create_order_permission_is_client_only(): void
+    {
+        $this->seedAndLogin();
+
+        $createOrderPerm = DB::table('permissions')->where('key', 'create_order')->first();
+        $this->assertNotNull($createOrderPerm, 'create_order permission must exist');
+
+        $adminLinked = DB::table('role_permissions')
+            ->where('role', 'admin')
+            ->where('permission_id', $createOrderPerm->id)
+            ->exists();
+        $this->assertFalse($adminLinked, 'create_order must NOT be linked to admin');
+
+        $investorLinked = DB::table('role_permissions')
+            ->where('role', 'investor')
+            ->where('permission_id', $createOrderPerm->id)
+            ->exists();
+        $this->assertFalse($investorLinked, 'create_order must NOT be linked to investor');
+
+        $clientLinked = DB::table('role_permissions')
+            ->where('role', 'client')
+            ->where('permission_id', $createOrderPerm->id)
+            ->exists();
+        $this->assertTrue($clientLinked, 'create_order must be linked to client');
+    }
 }

@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Client\OrderController;
 
 /*
 |--------------------------------------------------------------------------
@@ -63,4 +64,13 @@ Route::middleware(['auth', 'role:investor'])->prefix('investor')->group(function
 
 Route::middleware(['auth', 'role:client'])->prefix('client')->group(function () {
     Route::get('/dashboard', fn() => 'Client Dashboard - OK')->name('client.dashboard');
+
+    Route::prefix('orders')->name('client.orders.')->group(function () {
+        Route::get('/', [OrderController::class, 'index'])->name('index');
+        Route::get('/create', [OrderController::class, 'create'])->name('create');
+        Route::post('/', [OrderController::class, 'store'])->name('store');
+        Route::get('/{order}', [OrderController::class, 'show'])->name('show');
+        Route::post('/{order}/submit', [OrderController::class, 'submit'])->name('submit');
+        Route::post('/{order}/upload-document', [OrderController::class, 'uploadDocument'])->name('upload-document');
+    });
 });
