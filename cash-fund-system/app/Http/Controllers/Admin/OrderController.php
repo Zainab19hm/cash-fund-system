@@ -53,8 +53,12 @@ class OrderController extends Controller
             ->with('success', 'تم رفض الطلب');
     }
 
-    public function execute(OrderFund $order)
+    public function execute(Request $request, OrderFund $order)
     {
+        $request->validate([
+            'confirm_execute' => 'required|in:EXECUTE',
+        ]);
+
         $this->orderService->execute($order, auth()->id());
 
         return redirect()->route('admin.orders.show', $order)

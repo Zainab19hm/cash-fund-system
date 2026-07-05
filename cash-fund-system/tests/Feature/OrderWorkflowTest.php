@@ -204,7 +204,7 @@ class OrderWorkflowTest extends TestCase
         $this->actingAs($this->admin);
         $this->post(route('admin.orders.approve', $orderId));
 
-        $this->post(route('admin.orders.execute', $orderId));
+        $this->post(route('admin.orders.execute', $orderId), ['confirm_execute' => 'EXECUTE']);
 
         $this->assertDatabaseHas('orders_fund', [
             'id'          => $orderId,
@@ -226,7 +226,7 @@ class OrderWorkflowTest extends TestCase
         $this->submitOrder($orderId);
 
         $this->actingAs($this->admin);
-        $response = $this->post(route('admin.orders.execute', $orderId));
+        $response = $this->post(route('admin.orders.execute', $orderId), ['confirm_execute' => 'EXECUTE']);
 
         $response->assertSessionHasErrors('status');
         $this->assertDatabaseCount('daily_movements', 0);
@@ -287,7 +287,7 @@ class OrderWorkflowTest extends TestCase
 
         $this->actingAs($this->admin);
         $this->post(route('admin.orders.approve', $orderId));
-        $this->post(route('admin.orders.execute', $orderId));
+        $this->post(route('admin.orders.execute', $orderId), ['confirm_execute' => 'EXECUTE']);
 
         $this->actingAs($this->client);
         $response = $this->post(route('client.orders.cancel', $orderId));
@@ -327,7 +327,7 @@ class OrderWorkflowTest extends TestCase
         $this->assertDatabaseHas('orders_fund', ['id' => $orderId, 'status' => 'APPROVED']);
 
         // EXECUTED
-        $this->post(route('admin.orders.execute', $orderId));
+        $this->post(route('admin.orders.execute', $orderId), ['confirm_execute' => 'EXECUTE']);
         $this->assertDatabaseHas('orders_fund', ['id' => $orderId, 'status' => 'EXECUTED']);
 
         // Verify daily_movement
@@ -344,7 +344,7 @@ class OrderWorkflowTest extends TestCase
         $this->submitOrder($orderId);
 
         $this->actingAs($this->admin);
-        $response = $this->post(route('admin.orders.execute', $orderId));
+        $response = $this->post(route('admin.orders.execute', $orderId), ['confirm_execute' => 'EXECUTE']);
 
         $response->assertSessionHasErrors('status');
     }
@@ -399,7 +399,7 @@ class OrderWorkflowTest extends TestCase
 
         $this->actingAs($this->admin);
         $this->post(route('admin.orders.approve', $orderId));
-        $this->post(route('admin.orders.execute', $orderId));
+        $this->post(route('admin.orders.execute', $orderId), ['confirm_execute' => 'EXECUTE']);
 
         $movement = DB::table('daily_movements')->where('order_id', $orderId)->first();
         $this->assertEquals('750.00', $movement->balance_after);
@@ -412,7 +412,7 @@ class OrderWorkflowTest extends TestCase
 
         $this->actingAs($this->admin);
         $this->post(route('admin.orders.approve', $orderId));
-        $this->post(route('admin.orders.execute', $orderId));
+        $this->post(route('admin.orders.execute', $orderId), ['confirm_execute' => 'EXECUTE']);
 
         $movement = DB::table('daily_movements')->where('order_id', $orderId)->first();
         $this->assertEquals('-300.00', $movement->balance_after);
@@ -519,7 +519,7 @@ class OrderWorkflowTest extends TestCase
 
         $this->actingAs($this->admin);
         $this->post(route('admin.orders.approve', $orderId));
-        $this->post(route('admin.orders.execute', $orderId));
+        $this->post(route('admin.orders.execute', $orderId), ['confirm_execute' => 'EXECUTE']);
 
         $movement = DB::table('daily_movements')->where('order_id', $orderId)->first();
         $this->assertEquals($orderId, $movement->order_id);
@@ -617,7 +617,7 @@ class OrderWorkflowTest extends TestCase
 
         $this->actingAs($this->admin);
         $this->post(route('admin.orders.approve', $orderId));
-        $this->post(route('admin.orders.execute', $orderId));
+        $this->post(route('admin.orders.execute', $orderId), ['confirm_execute' => 'EXECUTE']);
 
         $order = DB::table('orders_fund')->where('id', $orderId)->first();
         $this->assertNotNull($order->executed_at);
