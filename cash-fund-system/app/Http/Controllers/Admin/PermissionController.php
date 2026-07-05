@@ -15,8 +15,8 @@ class PermissionController extends Controller
         $rolePermissions = DB::table('role_permissions')
             ->select('role', 'permission_id')
             ->get()
-            ->pluck('permission_id', 'role')
-            ->map(fn($ids) => $ids->toArray())
+            ->groupBy('role')
+            ->map(fn($rows) => $rows->pluck('permission_id')->toArray())
             ->toArray();
 
         return view('admin.permissions.index', compact('permissions', 'rolePermissions'));

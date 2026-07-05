@@ -41,7 +41,12 @@ class CategoryController extends Controller
         $this->authorizeManageCategories();
 
         $validated = $request->validate([
-            'name' => 'required|string|max:100',
+            'name' => [
+                'required',
+                'string',
+                'max:100',
+                Rule::unique('categories', 'name')->where(fn ($q) => $q->where('type', $request->type)),
+            ],
             'type' => 'required|in:payment,receipt,both',
         ]);
 
