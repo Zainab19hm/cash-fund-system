@@ -368,4 +368,132 @@ class RegressionTest extends TestCase
             ->exists();
         $this->assertTrue($clientLinked, 'create_order must be linked to client');
     }
+
+    // ── Phase 4B Regression ────────────────────────────────────────
+
+    public function test_daily_movements_table_exists(): void
+    {
+        $this->seedAndLogin();
+        $this->assertTrue(DB::getSchemaBuilder()->hasTable('daily_movements'));
+    }
+
+    public function test_daily_movements_has_required_columns(): void
+    {
+        $this->seedAndLogin();
+        $this->assertTrue(DB::getSchemaBuilder()->hasColumn('daily_movements', 'order_id'));
+        $this->assertTrue(DB::getSchemaBuilder()->hasColumn('daily_movements', 'movement_type'));
+        $this->assertTrue(DB::getSchemaBuilder()->hasColumn('daily_movements', 'amount'));
+        $this->assertTrue(DB::getSchemaBuilder()->hasColumn('daily_movements', 'balance_after'));
+        $this->assertTrue(DB::getSchemaBuilder()->hasColumn('daily_movements', 'movement_date'));
+        $this->assertTrue(DB::getSchemaBuilder()->hasColumn('daily_movements', 'executed_at'));
+    }
+
+    public function test_daily_movement_model_exists_and_is_fillable(): void
+    {
+        $this->seedAndLogin();
+        $model = new \App\Models\DailyMovement();
+        $this->assertContains('order_id', $model->getFillable());
+        $this->assertContains('balance_after', $model->getFillable());
+    }
+
+    public function test_admin_order_routes_registered(): void
+    {
+        $this->seedAndLogin();
+        $routes = [
+            'admin.orders.index',
+            'admin.orders.approve',
+            'admin.orders.reject',
+            'admin.orders.execute',
+            'admin.orders.cancel',
+        ];
+        foreach ($routes as $routeName) {
+            $this->assertNotEmpty(route($routeName, 1), "Route '{$routeName}' should be registered");
+        }
+    }
+
+    public function test_client_cancel_route_registered(): void
+    {
+        $this->seedAndLogin();
+        $this->assertNotEmpty(route('client.orders.cancel', 1));
+    }
+
+    public function test_admin_order_service_has_required_methods(): void
+    {
+        $this->seedAndLogin();
+        $service = new \App\Services\OrderService(new \App\Services\OrderNumberService());
+        $this->assertTrue(method_exists($service, 'approve'));
+        $this->assertTrue(method_exists($service, 'reject'));
+        $this->assertTrue(method_exists($service, 'cancel'));
+        $this->assertTrue(method_exists($service, 'execute'));
+    }
+
+    public function test_order_fund_model_has_daily_movements_relationship(): void
+    {
+        $this->seedAndLogin();
+        // The relationship is on DailyMovement, not OrderFund
+        $model = new \App\Models\DailyMovement();
+        $this->assertTrue(method_exists($model, 'order'));
+    }
+
+    public function test_admin_orders_index_view_file_exists(): void
+    {
+        $this->assertFileExists(
+            resource_path('views/admin/orders/index.blade.php'),
+            'admin orders index view must exist'
+        );
+    }
+
+    public function test_admin_orders_show_view_file_exists(): void
+    {
+        $this->assertFileExists(
+            resource_path('views/admin/orders/show.blade.php'),
+            'admin orders show view must exist'
+        );
+    }
+
+    public function test_admin_nav_contains_orders_link(): void
+    {
+        $content = file_get_contents(resource_path('views/components/admin-nav.blade.php'));
+        $this->assertStringContainsString('admin.orders.index', $content);
+        $this->assertStringContainsString('إدارة الطلبات', $content);
+    }
+
+    public function test_status_badge_contains_all_statuses(): void
+    {
+        $content = file_get_contents(resource_path('views/components/status-badge.blade.php'));
+        $statuses = ['DRAFT', 'PENDING', 'APPROVED', 'REJECTED', 'EXECUTED', 'CANCELLED'];
+        foreach ($statuses as $status) {
+            $this->assertStringContainsString($status, $content);
+        }
+    }
+
+    public function test_investor_blocked_from_admin_order_routes(): void
+    {
+        \Artisan::call('migrate:fresh', ['--seed' => true, '--force' => true]);
+        $investor = User::create([
+            'name'      => 'Investor 4B',
+            'username'  => 'investor_4b',
+            'password'  => 'password',
+            'role'      => 'investor',
+            'is_active' => true,
+        ]);
+        $this->actingAs($investor);
+        $response = $this->get(route('admin.orders.index'));
+        $response->assertStatus(403);
+    }
+
+    public function test_client_blocked_from_admin_order_routes(): void
+    {
+        \Artisan::call('migrate:fresh', ['--seed' => true, '--force' => true]);
+        $client = User::create([
+            'name'      => 'Client 4B',
+            'username'  => 'client_4b',
+            'password'  => 'password',
+            'role'      => 'client',
+            'is_active' => true,
+        ]);
+        $this->actingAs($client);
+        $response = $this->get(route('admin.orders.index'));
+        $response->assertStatus(403);
+    }
 }

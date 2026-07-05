@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\DailyMovement;
 use App\Models\OrderFund;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -76,6 +77,106 @@ class OrderService
         }
 
         $order->update(['status' => 'PENDING']);
+
+        // TODO: notification (Phase 5)
+    }
+
+    public function approve(OrderFund $order, int $approvedBy): void
+    {
+        if ($order->status !== 'PENDING') {
+            throw ValidationException::withMessages([
+                'status' => 'لا يمكن اعتماد طلب ليس بحالة قيد الانتظار',
+            ]);
+        }
+
+        if ($order->created_by === $approvedBy) {
+            throw ValidationException::withMessages([
+                'approved_by' => 'لا يمكن لمنشئ الطلب اعتماده بنفسه',
+            ]);
+        }
+
+        $order->update([
+            'status'      => 'APPROVED',
+            'approved_by' => $approvedBy,
+            'approved_at' => now(),
+        ]);
+
+        // TODO: notification (Phase 5)
+    }
+
+    public function reject(OrderFund $order, int $rejectedBy, string $reason): void
+    {
+        if ($order->status !== 'PENDING') {
+            throw ValidationException::withMessages([
+                'status' => 'لا يمكن رفض طلب ليس بحالة قيد الانتظار',
+            ]);
+        }
+
+        if (trim($reason) === '') {
+            throw ValidationException::withMessages([
+                'rejection_reason' => 'سبب الرفض إلزامي',
+            ]);
+        }
+
+        $order->update([
+            'status'           => 'REJECTED',
+            'rejected_by'      => $rejectedBy,
+            'rejection_reason' => $reason,
+        ]);
+
+        // TODO: notification (Phase 5)
+    }
+
+    public function cancel(OrderFund $order, int $cancelledBy): void
+    {
+        if (! in_array($order->status, ['DRAFT', 'PENDING'])) {
+            throw ValidationException::withMessages([
+                'status' => 'لا يمكن إلغاء طلب بهذه الحالة',
+            ]);
+        }
+
+        $order->update([
+            'status'       => 'CANCELLED',
+            'cancelled_by' => $cancelledBy,
+        ]);
+    }
+
+    public function execute(OrderFund $order, int $executedBy): void
+    {
+        if ($order->status !== 'APPROVED') {
+            throw ValidationException::withMessages([
+                'status' => 'لا يمكن تنفيذ طلب لم يُعتمد بعد',
+            ]);
+        }
+
+        DB::transaction(function () use ($order, $executedBy) {
+            $lastMovement = DailyMovement::orderByDesc('id')
+                ->lockForUpdate()
+                ->first();
+
+            $currentBalance = $lastMovement ? $lastMovement->balance_after : '0.00';
+
+            $delta = $order->type === 'receipt'
+                ? $order->amount
+                : bcmul($order->amount, '-1', 2);
+
+            $newBalance = bcadd($currentBalance, $delta, 2);
+
+            DailyMovement::create([
+                'order_id'      => $order->id,
+                'movement_type' => $order->type,
+                'amount'        => $order->amount,
+                'balance_after' => $newBalance,
+                'movement_date' => now()->toDateString(),
+                'executed_at'   => now(),
+            ]);
+
+            $order->update([
+                'status'      => 'EXECUTED',
+                'executed_by' => $executedBy,
+                'executed_at' => now(),
+            ]);
+        });
 
         // TODO: notification (Phase 5)
     }

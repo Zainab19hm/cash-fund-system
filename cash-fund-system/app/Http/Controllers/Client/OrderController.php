@@ -94,4 +94,16 @@ class OrderController extends Controller
         return redirect()->route('client.orders.show', $order)
             ->with('success', 'تم رفع الوثيقة بنجاح');
     }
+
+    public function cancel(OrderFund $order)
+    {
+        if ($order->created_by !== auth()->id()) {
+            abort(403, 'غير مصرح لك بهذه العملية');
+        }
+
+        $this->orderService->cancel($order, auth()->id());
+
+        return redirect()->route('client.orders.show', $order)
+            ->with('success', 'تم إلغاء الطلب بنجاح');
+    }
 }

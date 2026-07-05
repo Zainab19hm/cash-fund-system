@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Client\OrderController;
 
 /*
@@ -56,6 +57,15 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
         Route::put('/{category}', [CategoryController::class, 'update'])->name('update');
         Route::post('/{category}/toggle-status', [CategoryController::class, 'toggleStatus'])->name('toggle-status');
     });
+
+    Route::prefix('orders')->name('admin.orders.')->group(function () {
+        Route::get('/', [AdminOrderController::class, 'index'])->name('index');
+        Route::get('/{order}', [AdminOrderController::class, 'show'])->name('show');
+        Route::post('/{order}/approve', [AdminOrderController::class, 'approve'])->name('approve');
+        Route::post('/{order}/reject', [AdminOrderController::class, 'reject'])->name('reject');
+        Route::post('/{order}/execute', [AdminOrderController::class, 'execute'])->name('execute');
+        Route::post('/{order}/cancel', [AdminOrderController::class, 'cancel'])->name('cancel');
+    });
 });
 
 Route::middleware(['auth', 'role:investor'])->prefix('investor')->group(function () {
@@ -72,5 +82,6 @@ Route::middleware(['auth', 'role:client'])->prefix('client')->group(function () 
         Route::get('/{order}', [OrderController::class, 'show'])->name('show');
         Route::post('/{order}/submit', [OrderController::class, 'submit'])->name('submit');
         Route::post('/{order}/upload-document', [OrderController::class, 'uploadDocument'])->name('upload-document');
+        Route::post('/{order}/cancel', [OrderController::class, 'cancel'])->name('cancel');
     });
 });

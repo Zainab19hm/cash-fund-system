@@ -146,6 +146,16 @@
                     </button>
                 </form>
 
+                {{-- Cancel --}}
+                <form method="POST" action="{{ route('client.orders.cancel', $order) }}"
+                      onsubmit="return confirm('هل أنت متأكد من إلغاء هذا الطلب؟')">
+                    @csrf
+                    <button type="submit"
+                            class="rounded-xl border border-red-500/20 bg-red-500/10 px-6 py-2.5 text-sm font-bold text-red-400 transition-all hover:bg-red-500/20 active:scale-[0.98]">
+                        إلغاء الطلب
+                    </button>
+                </form>
+
                 {{-- Upload Document --}}
                 <form method="POST" action="{{ route('client.orders.upload-document', $order) }}"
                       enctype="multipart/form-data"
@@ -160,6 +170,20 @@
                                accept=".pdf,.jpg,.jpeg,.png,.docx"
                                onchange="this.form.submit()" />
                     </label>
+                </form>
+            </div>
+        @endif
+
+        {{-- Cancel (for PENDING status) --}}
+        @if ($order->status === 'PENDING')
+            <div class="flex flex-wrap gap-3">
+                <form method="POST" action="{{ route('client.orders.cancel', $order) }}"
+                      onsubmit="return confirm('هل أنت متأكد من إلغاء هذا الطلب؟')">
+                    @csrf
+                    <button type="submit"
+                            class="rounded-xl border border-red-500/20 bg-red-500/10 px-6 py-2.5 text-sm font-bold text-red-400 transition-all hover:bg-red-500/20 active:scale-[0.98]">
+                        إلغاء الطلب
+                    </button>
                 </form>
             </div>
         @endif
