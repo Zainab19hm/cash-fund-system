@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Client\OrderController;
+use App\Http\Controllers\NotificationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -84,4 +85,11 @@ Route::middleware(['auth', 'role:client'])->prefix('client')->group(function () 
         Route::post('/{order}/upload-document', [OrderController::class, 'uploadDocument'])->name('upload-document');
         Route::post('/{order}/cancel', [OrderController::class, 'cancel'])->name('cancel');
     });
+});
+
+// ── Notification Routes (shared across roles) ──────────────────────
+Route::middleware('auth')->group(function () {
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount'])->name('notifications.unread-count');
 });

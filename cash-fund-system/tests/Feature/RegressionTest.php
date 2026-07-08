@@ -420,7 +420,7 @@ class RegressionTest extends TestCase
     public function test_admin_order_service_has_required_methods(): void
     {
         $this->seedAndLogin();
-        $service = new \App\Services\OrderService(new \App\Services\OrderNumberService());
+        $service = app(\App\Services\OrderService::class);
         $this->assertTrue(method_exists($service, 'approve'));
         $this->assertTrue(method_exists($service, 'reject'));
         $this->assertTrue(method_exists($service, 'cancel'));

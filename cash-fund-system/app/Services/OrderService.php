@@ -10,10 +10,12 @@ use Illuminate\Validation\ValidationException;
 class OrderService
 {
     protected OrderNumberService $orderNumberService;
+    protected NotificationService $notificationService;
 
-    public function __construct(OrderNumberService $orderNumberService)
+    public function __construct(OrderNumberService $orderNumberService, NotificationService $notificationService)
     {
         $this->orderNumberService = $orderNumberService;
+        $this->notificationService = $notificationService;
     }
 
     /**
@@ -77,8 +79,6 @@ class OrderService
         }
 
         $order->update(['status' => 'PENDING']);
-
-        // TODO: notification (Phase 5)
     }
 
     public function approve(OrderFund $order, int $approvedBy): void
@@ -95,13 +95,14 @@ class OrderService
             ]);
         }
 
-        $order->update([
-            'status'      => 'APPROVED',
-            'approved_by' => $approvedBy,
-            'approved_at' => now(),
-        ]);
-
-        // TODO: notification (Phase 5)
+        DB::transaction(function () use ($order, $approvedBy) {
+            $order->update([
+                'status'      => 'APPROVED',
+                'approved_by' => $approvedBy,
+                'approved_at' => now(),
+            ]);
+            $this->notificationService->notify($order, 'APPROVED');
+        });
     }
 
     public function reject(OrderFund $order, int $rejectedBy, string $reason): void
@@ -118,13 +119,14 @@ class OrderService
             ]);
         }
 
-        $order->update([
-            'status'           => 'REJECTED',
-            'rejected_by'      => $rejectedBy,
-            'rejection_reason' => $reason,
-        ]);
-
-        // TODO: notification (Phase 5)
+        DB::transaction(function () use ($order, $rejectedBy, $reason) {
+            $order->update([
+                'status'           => 'REJECTED',
+                'rejected_by'      => $rejectedBy,
+                'rejection_reason' => $reason,
+            ]);
+            $this->notificationService->notify($order, 'REJECTED');
+        });
     }
 
     public function cancel(OrderFund $order, int $cancelledBy): void
@@ -176,8 +178,8 @@ class OrderService
                 'executed_by' => $executedBy,
                 'executed_at' => now(),
             ]);
-        });
 
-        // TODO: notification (Phase 5)
+            $this->notificationService->notify($order, 'EXECUTED');
+        });
     }
 }
