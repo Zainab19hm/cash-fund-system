@@ -35,6 +35,10 @@
                                         <span class="inline-flex items-center rounded-full bg-blue-500/15 px-2.5 py-0.5 text-xs font-semibold text-blue-400">
                                             تم التنفيذ
                                         </span>
+                                    @elseif ($notification->type === 'NEW_ORDER')
+                                        <span class="inline-flex items-center rounded-full bg-yellow-500/15 px-2.5 py-0.5 text-xs font-semibold text-yellow-400">
+                                            طلب جديد
+                                        </span>
                                     @endif
 
                                     {{-- Unread Indicator --}}
@@ -55,10 +59,17 @@
 
                             <div class="flex items-center gap-2">
                                 {{-- View Order Link --}}
-                                <a href="{{ route('client.orders.show', $notification->order_id) }}"
-                                   class="rounded-lg border border-bdr bg-bg/50 px-3 py-1.5 text-xs font-semibold text-text transition-colors hover:bg-bg">
-                                    عرض الطلب
-                                </a>
+                                @if (auth()->user()->role === 'admin')
+                                    <a href="{{ route('admin.orders.show', $notification->order_id) }}"
+                                       class="rounded-lg border border-bdr bg-bg/50 px-3 py-1.5 text-xs font-semibold text-text transition-colors hover:bg-bg">
+                                        عرض الطلب
+                                    </a>
+                                @elseif (auth()->user()->role === 'client')
+                                    <a href="{{ route('client.orders.show', $notification->order_id) }}"
+                                       class="rounded-lg border border-bdr bg-bg/50 px-3 py-1.5 text-xs font-semibold text-text transition-colors hover:bg-bg">
+                                        عرض الطلب
+                                    </a>
+                                @endif
 
                                 {{-- Mark as Read Button --}}
                                 @if (!$notification->is_read)

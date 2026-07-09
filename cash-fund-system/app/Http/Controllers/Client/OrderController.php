@@ -16,18 +16,22 @@ class OrderController extends Controller
         protected DocumentService $documentService,
     ) {}
 
-    public function index()
+    public function index(Request $request)
     {
-        $orders = OrderFund::where('created_by', auth()->id())
-            ->latest()
-            ->paginate(15);
+        $query = OrderFund::where('created_by', auth()->id());
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $orders = $query->latest()->paginate(15)->withQueryString();
 
         return view('client.orders.index', compact('orders'));
     }
 
     public function create()
     {
-        $categories = Category::active()->get();
+        $categories = Category::active()->get(['id', 'name', 'type']);
 
         return view('client.orders.create', compact('categories'));
     }
@@ -38,6 +42,7 @@ class OrderController extends Controller
             'type'        => 'required|in:payment,receipt',
             'amount'      => 'required|numeric|min:0.01',
             'description' => 'nullable|string|max:1000',
+            'payer_name'  => 'required_if:type,receipt|nullable|string|max:255',
             'order_date'  => 'required|date',
             'notes'       => 'nullable|string|max:1000',
             'items'       => 'required|array|min:1',
@@ -105,5 +110,19 @@ class OrderController extends Controller
 
         return redirect()->route('client.orders.show', $order)
             ->with('success', 'تم إلغاء الطلب بنجاح');
+    }
+
+    public function accountStatement(Request $request)
+    {
+        $orders = OrderFund::where('created_by', auth()->id())
+            ->where('status', 'EXECUTED')
+            ->with(['items.category', 'executor'])
+            ->when($request->from_date, fn($q) => $q->where('order_date', '>=', $request->from_date))
+            ->when($request->to_date, fn($q) => $q->where('order_date', '<=', $request->to_date))
+            ->orderBy('executed_at')
+            ->paginate(20)
+            ->withQueryString();
+
+        return view('client.orders.account-statement', compact('orders'));
     }
 }

@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Rules\StrongPassword;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
@@ -18,7 +20,8 @@ class UserController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('username', 'like', "%{$search}%");
+                  ->orWhere('username', 'like', "%{$search}%")
+                  ->orWhere('employee_number', 'like', "%{$search}%");
             });
         }
 
@@ -43,10 +46,27 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name'     => 'required|string|max:100',
-            'username' => 'required|string|max:100|unique:users,username',
-            'password' => 'required|confirmed|min:8',
-            'role'     => 'required|in:admin,investor,client',
+            'name'            => 'required|string|max:100',
+            'national_id'     => [
+                'required',
+                'digits_between:5,20',
+                Rule::unique('users', 'national_id'),
+            ],
+            'employee_number' => [
+                'required',
+                'string',
+                'max:20',
+                Rule::unique('users', 'employee_number'),
+            ],
+            'phone'           => 'nullable|string|max:20',
+            'position'        => 'nullable|string|max:100',
+            'username'        => 'required|string|max:100|unique:users,username',
+            'password'        => ['required', 'confirmed', new StrongPassword()],
+            'role'            => 'required|in:admin,investor,client',
+        ], [
+            'national_id.digits_between' => 'رقم الهوية الوطنية يجب أن يحتوي أرقاماً فقط (5-20 خانة)',
+            'national_id.unique'         => 'رقم الهوية هذا مسجّل بالفعل لمستخدم آخر',
+            'employee_number.unique'     => 'الرقم الوظيفي هذا مستخدم بالفعل',
         ]);
 
         $validated['is_active'] = true;
@@ -67,14 +87,31 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         $validated = $request->validate([
-            'name'     => 'required|string|max:100',
-            'username' => [
+            'name'            => 'required|string|max:100',
+            'national_id'     => [
+                'required',
+                'digits_between:5,20',
+                Rule::unique('users', 'national_id')->ignore($user->id),
+            ],
+            'employee_number' => [
+                'required',
+                'string',
+                'max:20',
+                Rule::unique('users', 'employee_number')->ignore($user->id),
+            ],
+            'phone'           => 'nullable|string|max:20',
+            'position'        => 'nullable|string|max:100',
+            'username'        => [
                 'required',
                 'string',
                 'max:100',
                 Rule::unique('users', 'username')->ignore($user->id),
             ],
-            'role'     => 'required|in:admin,investor,client',
+            'role'            => 'required|in:admin,investor,client',
+        ], [
+            'national_id.digits_between' => 'رقم الهوية الوطنية يجب أن يحتوي أرقاماً فقط (5-20 خانة)',
+            'national_id.unique'         => 'رقم الهوية هذا مسجّل بالفعل لمستخدم آخر',
+            'employee_number.unique'     => 'الرقم الوظيفي هذا مستخدم بالفعل',
         ]);
 
         if ($user->id === auth()->id() && $validated['role'] !== 'admin') {
@@ -94,7 +131,7 @@ class UserController extends Controller
     public function resetPassword(Request $request, User $user)
     {
         $validated = $request->validate([
-            'password' => 'required|confirmed|min:8',
+            'password' => ['required', 'confirmed', new StrongPassword()],
         ]);
 
         $user->password = $validated['password'];
@@ -146,5 +183,42 @@ class UserController extends Controller
             'notes'       => $notes,
             'created_at'  => now(),
         ]);
+    }
+
+    public function suggestPassword(): \Illuminate\Http\JsonResponse
+    {
+        $password = $this->generateStrongPassword();
+        return response()->json(['password' => $password]);
+    }
+
+    private function generateStrongPassword(int $length = 16): string
+    {
+        $uppercase = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+        $lowercase = 'abcdefghjkmnpqrstuvwxyz';
+        $numbers = '23456789';
+        $special = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+
+        $password = '';
+        $password .= $uppercase[random_int(0, strlen($uppercase) - 1)];
+        $password .= $lowercase[random_int(0, strlen($lowercase) - 1)];
+        $password .= $numbers[random_int(0, strlen($numbers) - 1)];
+        $password .= $special[random_int(0, strlen($special) - 1)];
+
+        $allChars = $uppercase . $lowercase . $numbers . $special;
+        for ($i = 4; $i < $length; $i++) {
+            $password .= $allChars[random_int(0, strlen($allChars) - 1)];
+        }
+
+        return str_split($password) ? implode('', $this->secureShuffle(str_split($password))) : $password;
+    }
+
+    private function secureShuffle(array $array): array
+    {
+        $count = count($array);
+        for ($i = $count - 1; $i > 0; $i--) {
+            $j = random_int(0, $i);
+            [$array[$i], $array[$j]] = [$array[$j], $array[$i]];
+        }
+        return $array;
     }
 }

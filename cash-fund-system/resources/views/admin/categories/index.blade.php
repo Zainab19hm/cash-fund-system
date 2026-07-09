@@ -81,7 +81,8 @@
 
         {{-- Categories Table --}}
         <div class="overflow-hidden rounded-xl border border-bdr bg-surface">
-            <div class="overflow-x-auto">
+            {{-- Desktop Table --}}
+            <div class="hidden overflow-x-auto md:block">
                 <table class="w-full text-sm">
                     <thead>
                         <tr class="border-b border-bdr bg-bg/50">
@@ -132,20 +133,10 @@
                                         </a>
 
                                         {{-- Toggle Status --}}
-                                        <form method="POST" action="{{ route('admin.categories.toggle-status', $category) }}"
-                                              x-data
-                                              @submit.prevent="
-                                                  if (!{{ $category->is_active ? 'true' : 'false' }}) {
-                                                      $el.submit();
-                                                  } else {
-                                                      if (confirm('هل أنت متأكد من إيقاف التصنيف \"{{ $category->name }}\"؟')) {
-                                                          $el.submit();
-                                                      }
-                                                  }
-                                              "
-                                              class="inline">
+                                        <form method="POST" action="{{ route('admin.categories.toggle-status', $category) }}" class="inline">
                                             @csrf
                                             <button type="submit"
+                                                    onclick="{{ $category->is_active ? "return confirm('هل أنت متأكد من إيقاف التصنيف $category->name؟')" : 'return true' }}"
                                                     class="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors {{ $category->is_active ? 'border-red-500/20 text-red-400 hover:bg-red-500/10' : 'border-green-500/20 text-green-400 hover:bg-green-500/10' }}"
                                                     title="{{ $category->is_active ? 'إيقاف' : 'تفعيل' }}">
                                                 @if ($category->is_active)
@@ -173,6 +164,54 @@
                         @endforelse
                     </tbody>
                 </table>
+            </div>
+
+            {{-- Mobile Cards --}}
+            <div class="md:hidden divide-y divide-bdr">
+                @forelse ($categories as $category)
+                    <div class="p-4 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="font-semibold text-text">{{ $category->name }}</span>
+                            @if ($category->is_active)
+                                <span class="inline-flex items-center gap-1.5 rounded-full bg-primary/15 px-3 py-1 text-xs font-semibold text-primary">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-primary"></span>
+                                    نشط
+                                </span>
+                            @else
+                                <span class="inline-flex items-center gap-1.5 rounded-full bg-muted/20 px-3 py-1 text-xs font-semibold text-muted">
+                                    <span class="h-1.5 w-1.5 rounded-full bg-muted"></span>
+                                    موقوف
+                                </span>
+                            @endif
+                        </div>
+                        <div class="flex items-center justify-between">
+                            @if ($category->type === 'payment')
+                                <span class="inline-flex items-center gap-1.5 rounded-full bg-accent/15 px-3 py-1 text-xs font-semibold text-accent">صرف</span>
+                            @elseif ($category->type === 'receipt')
+                                <span class="inline-flex items-center gap-1.5 rounded-full bg-primary/15 px-3 py-1 text-xs font-semibold text-primary">قبض</span>
+                            @else
+                                <span class="inline-flex items-center gap-1.5 rounded-full bg-muted/20 px-3 py-1 text-xs font-semibold text-muted">صرف وقبض</span>
+                            @endif
+                            <div class="flex items-center gap-2">
+                                <a href="{{ route('admin.categories.edit', $category) }}"
+                                   class="inline-flex items-center gap-1.5 rounded-lg border border-bdr bg-surface px-3 py-1.5 text-xs font-semibold text-text transition-colors hover:bg-bg">
+                                    تعديل
+                                </a>
+                                <form method="POST" action="{{ route('admin.categories.toggle-status', $category) }}" class="inline">
+                                    @csrf
+                                    <button type="submit"
+                                            class="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors {{ $category->is_active ? 'border-red-500/20 text-red-400 hover:bg-red-500/10' : 'border-green-500/20 text-green-400 hover:bg-green-500/10' }}">
+                                        {{ $category->is_active ? 'إيقاف' : 'تفعيل' }}
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <div class="p-12 text-center text-muted">
+                        لا يوجد تصنيفات
+                    </div>
+                @endforelse
             </div>
 
             {{-- Pagination --}}

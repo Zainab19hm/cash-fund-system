@@ -2,7 +2,6 @@
 
 namespace App\Http\Middleware;
 
-use App\Providers\RouteServiceProvider;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -23,7 +22,14 @@ class RedirectIfAuthenticated
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
-                return redirect(RouteServiceProvider::HOME);
+                $user = Auth::user();
+                $routes = [
+                    'admin'    => 'admin.dashboard',
+                    'investor' => 'investor.dashboard',
+                    'client'   => 'client.dashboard',
+                ];
+
+                return redirect()->route($routes[$user->role] ?? $routes['client']);
             }
         }
 

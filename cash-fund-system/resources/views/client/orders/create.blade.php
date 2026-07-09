@@ -28,6 +28,7 @@
             <div>
                 <label for="type" class="mb-1.5 block text-sm font-semibold text-text">نوع الطلب</label>
                 <select name="type" id="type" required
+                        x-model="orderType" @change="items.forEach(i => i.category_id = '')"
                         class="w-full rounded-xl border border-bdr bg-bg px-4 py-3 text-sm text-text transition-colors focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20">
                     <option value="">اختر النوع...</option>
                     <option value="payment" {{ old('type') === 'payment' ? 'selected' : '' }}>صرف</option>
@@ -68,6 +69,18 @@
                           class="w-full rounded-xl border border-bdr bg-bg px-4 py-3 text-sm text-text placeholder-muted transition-colors focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
                           placeholder="وصف مختصر للطلب...">{{ old('description') }}</textarea>
                 @error('description')
+                    <p class="mt-1.5 text-xs text-red-400">{{ $message }}</p>
+                @enderror
+            </div>
+
+            {{-- Payer Name (receipt only) --}}
+            <div x-show="orderType === 'receipt'" x-transition>
+                <label for="payer_name" class="mb-1.5 block text-sm font-semibold text-text">اسم الدافع</label>
+                <input type="text" name="payer_name" id="payer_name"
+                       value="{{ old('payer_name') }}" required
+                       class="w-full rounded-xl border border-bdr bg-bg px-4 py-3 text-sm text-text placeholder-muted transition-colors focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
+                       placeholder="اسم شخص أو جهة الدفع..." />
+                @error('payer_name')
                     <p class="mt-1.5 text-xs text-red-400">{{ $message }}</p>
                 @enderror
             </div>
@@ -114,9 +127,9 @@
                                         x-model="item.category_id"
                                         class="w-full rounded-xl border border-bdr bg-surface px-3 py-2.5 text-sm text-text transition-colors focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20">
                                     <option value="">التصنيف...</option>
-                                    @foreach ($categories as $cat)
-                                        <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-                                    @endforeach
+                                    <template x-for="cat in filteredCategories" :key="cat.id">
+                                        <option :value="cat.id" x-text="cat.name"></option>
+                                    </template>
                                 </select>
                                 @error('items.*.category_id')
                                     <p class="mt-1 text-xs text-red-400">{{ $message }}</p>
@@ -169,10 +182,16 @@
     @push('scripts')
     <script>
         function orderForm() {
+            const allCategories = {!! json_encode($categories) !!};
             return {
+                orderType: '{{ old("type") }}',
                 items: {!! json_encode(old('items', [['category_id' => '', 'description' => '', 'amount' => '']])) !!},
                 get itemsTotal() {
                     return this.items.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+                },
+                get filteredCategories() {
+                    if (!this.orderType) return allCategories;
+                    return allCategories.filter(c => c.type === this.orderType || c.type === 'both');
                 },
                 addItem() {
                     this.items.push({ category_id: '', description: '', amount: '' });

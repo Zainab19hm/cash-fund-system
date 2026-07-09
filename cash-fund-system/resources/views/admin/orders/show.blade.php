@@ -7,10 +7,20 @@
                 <h1 class="font-heading text-2xl font-bold text-primary">تفاصيل الطلب</h1>
                 <p class="mt-1 text-sm text-muted">{{ $order->order_number }}</p>
             </div>
-            <a href="{{ route('admin.orders.index') }}"
-               class="rounded-xl border border-bdr bg-surface px-5 py-2.5 text-sm font-semibold text-text transition-colors hover:bg-bg">
-                رجوع
-            </a>
+            <div class="flex items-center gap-3">
+                <a href="{{ route('admin.orders.report', $order) }}"
+                   target="_blank"
+                   class="inline-flex items-center gap-2 rounded-xl border border-bdr bg-surface px-5 py-2.5 text-sm font-semibold text-text transition-colors hover:bg-bg">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5zm-3 0h.008v.008H15V10.5z" />
+                    </svg>
+                    طباعة تقرير
+                </a>
+                <a href="{{ route('admin.orders.index') }}"
+                   class="rounded-xl border border-bdr bg-surface px-5 py-2.5 text-sm font-semibold text-text transition-colors hover:bg-bg">
+                    رجوع
+                </a>
+            </div>
         </div>
 
         {{-- Success Message --}}
@@ -67,6 +77,12 @@
                     <span class="text-sm text-muted">المنشئ</span>
                     <p class="mt-1 text-sm text-text">{{ $order->creator->name ?? '—' }}</p>
                 </div>
+                @if ($order->type === 'receipt' && $order->payer_name)
+                    <div>
+                        <span class="text-sm text-muted">اسم الدافع</span>
+                        <p class="mt-1 text-sm font-semibold text-primary">{{ $order->payer_name }}</p>
+                    </div>
+                @endif
                 @if ($order->approved_by)
                     <div>
                         <span class="text-sm text-muted">اعتمد بواسطة</span>
@@ -158,7 +174,17 @@
                                     <p class="text-xs text-muted">{{ strtoupper($doc->file_type) }} — {{ number_format($doc->file_size / 1024, 1) }} KB</p>
                                 </div>
                             </div>
-                            <span class="text-xs text-muted">{{ $doc->uploaded_at->format('Y-m-d H:i') }}</span>
+                            <div class="flex items-center gap-3">
+                                <span class="text-xs text-muted">{{ $doc->uploaded_at->format('Y-m-d H:i') }}</span>
+                                <a href="{{ route('admin.orders.download-document', [$order, $doc]) }}"
+                                   class="inline-flex items-center gap-1.5 rounded-lg border border-primary/20 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary transition-colors hover:bg-primary/20"
+                                   title="تحميل الملف">
+                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                                    </svg>
+                                    تحميل
+                                </a>
+                            </div>
                         </div>
                     @endforeach
                 </div>
@@ -185,7 +211,7 @@
 
                     {{-- Reject --}}
                     <button type="button"
-                            @click="showRejectModal = true"
+                            onclick="document.getElementById('reject-modal').style.display='flex'"
                             class="rounded-xl bg-red-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:brightness-110 active:scale-[0.98]">
                         رفض الطلب
                     </button>
@@ -200,41 +226,24 @@
                 <p class="text-sm text-muted">الطلب معتمد وجاهز للتنفيذ. التأكيد صريح ومنفصل.</p>
 
                 <button type="button"
-                        @click="showExecuteModal = true"
+                        onclick="document.getElementById('execute-modal').style.display='flex'"
                         class="rounded-xl bg-primary px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:shadow-primary/30 hover:brightness-110 active:scale-[0.98]">
                     تنفيذ الطلب
                 </button>
             </div>
         @endif
 
-        {{-- Cancel Action --}}
-        @if (in_array($order->status, ['DRAFT', 'PENDING']))
-            <div class="rounded-xl border border-bdr bg-surface p-6 space-y-4">
-                <h2 class="font-heading text-lg font-bold text-text">إلغاء الطلب</h2>
-
-                <form method="POST" action="{{ route('admin.orders.cancel', $order) }}"
-                      onsubmit="return confirm('هل أنت متأكد من إلغاء هذا الطلب؟')">
-                    @csrf
-                    <button type="submit"
-                            class="rounded-xl border border-red-500/20 bg-red-500/10 px-6 py-2.5 text-sm font-bold text-red-400 transition-all hover:bg-red-500/20 active:scale-[0.98]">
-                        إلغاء الطلب
-                    </button>
-                </form>
-            </div>
-        @endif
     </div>
 
     {{-- Reject Modal --}}
-    <div x-data="{ showRejectModal: false }"
-         x-show="showRejectModal"
-         @keydown.escape.window="showRejectModal = false"
-         class="fixed inset-0 z-50 flex items-center justify-center p-4"
+    <div id="reject-modal"
+         class="fixed inset-0 z-50 items-center justify-center p-4"
          style="display: none;">
-        <div class="fixed inset-0 bg-black/50" @click="showRejectModal = false"></div>
+        <div class="fixed inset-0 bg-black/50" onclick="document.getElementById('reject-modal').style.display='none'"></div>
         <div class="relative w-full max-w-md rounded-2xl border border-bdr bg-surface p-6 shadow-2xl">
             <div class="mb-4 flex items-center justify-between">
                 <h3 class="font-heading text-lg font-bold text-primary">رفض الطلب</h3>
-                <button @click="showRejectModal = false" class="text-muted hover:text-text">
+                <button onclick="document.getElementById('reject-modal').style.display='none'" class="text-muted hover:text-text">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
@@ -251,7 +260,7 @@
                 </div>
 
                 <div class="flex items-center justify-end gap-3">
-                    <button type="button" @click="showRejectModal = false"
+                    <button type="button" onclick="document.getElementById('reject-modal').style.display='none'"
                             class="rounded-xl border border-bdr bg-surface px-5 py-2.5 text-sm font-semibold text-text transition-colors hover:bg-bg">
                         إلغاء
                     </button>
@@ -265,16 +274,14 @@
     </div>
 
     {{-- Execute Confirmation Modal --}}
-    <div x-data="{ showExecuteModal: false, confirmText: '' }"
-         x-show="showExecuteModal"
-         @keydown.escape.window="showExecuteModal = false"
-         class="fixed inset-0 z-50 flex items-center justify-center p-4"
+    <div id="execute-modal"
+         class="fixed inset-0 z-50 items-center justify-center p-4"
          style="display: none;">
-        <div class="fixed inset-0 bg-black/50" @click="showExecuteModal = false"></div>
+        <div class="fixed inset-0 bg-black/50" onclick="document.getElementById('execute-modal').style.display='none'"></div>
         <div class="relative w-full max-w-md rounded-2xl border border-bdr bg-surface p-6 shadow-2xl">
             <div class="mb-4 flex items-center justify-between">
                 <h3 class="font-heading text-lg font-bold text-primary">تأكيد التنفيذ</h3>
-                <button @click="showExecuteModal = false" class="text-muted hover:text-text">
+                <button onclick="document.getElementById('execute-modal').style.display='none'" class="text-muted hover:text-text">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
@@ -290,18 +297,18 @@
             <form method="POST" action="{{ route('admin.orders.execute', $order) }}">
                 @csrf
                 <div class="mb-4">
-                    <input type="text" name="confirm_execute" x-model="confirmText"
+                    <input type="text" name="confirm_execute" id="confirm_execute_input"
                            class="w-full rounded-xl border border-bdr bg-bg px-4 py-2.5 text-sm text-text placeholder-muted transition-colors focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
-                           placeholder="اكتب EXECUTE للتأكيد" />
+                           placeholder="اكتب EXECUTE للتأكيد"
+                           oninput="document.getElementById('execute-submit-btn').disabled = (this.value !== 'EXECUTE')" />
                 </div>
 
                 <div class="flex items-center justify-end gap-3">
-                    <button type="button" @click="showExecuteModal = false"
+                    <button type="button" onclick="document.getElementById('execute-modal').style.display='none'"
                             class="rounded-xl border border-bdr bg-surface px-5 py-2.5 text-sm font-semibold text-text transition-colors hover:bg-bg">
                         إلغاء
                     </button>
-                    <button type="submit"
-                            :disabled="confirmText !== 'EXECUTE'"
+                    <button type="submit" id="execute-submit-btn" disabled
                             class="rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:shadow-primary/30 hover:brightness-110 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed">
                         تنفيذ الطلب
                     </button>

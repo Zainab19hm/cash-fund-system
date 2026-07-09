@@ -1,0 +1,93 @@
+﻿Warning: TTY mode is not supported on Windows platform.
+
+Deprecated: NunoMaduro\Collision\Adapters\Phpunit\Printer::__construct(): Implicitly marking parameter $output as nullable is deprecated, the explicit nullable type must be used instead in C:\Users\HASEEB\Desktop\cash-fund-system\cash-fund-system\vendor\nunomaduro\collision\src\Adapters\Phpunit\Printer.php on line 61
+
+Deprecated: Method ReflectionMethod::setAccessible() is deprecated since 8.5, as it has no effect since PHP 8.1 in C:\Users\HASEEB\Desktop\cash-fund-system\cash-fund-system\vendor\nunomaduro\collision\src\Adapters\Phpunit\ConfigureIO.php on line 37
+
+Deprecated: NunoMaduro\Collision\Adapters\Phpunit\Style::writeRecap(): Implicitly marking parameter $timer as nullable is deprecated, the explicit nullable type must be used instead in C:\Users\HASEEB\Desktop\cash-fund-system\cash-fund-system\vendor\nunomaduro\collision\src\Adapters\Phpunit\Style.php on line 119
+
+Deprecated: NunoMaduro\Collision\Adapters\Phpunit\Style::testLineFrom(): Implicitly marking parameter $warning as nullable is deprecated, the explicit nullable type must be used instead in C:\Users\HASEEB\Desktop\cash-fund-system\cash-fund-system\vendor\nunomaduro\collision\src\Adapters\Phpunit\Style.php on line 252
+PHP Deprecated:  NunoMaduro\Collision\Adapters\Phpunit\Printer::__construct(): Implicitly marking parameter $output as nullable is deprecated, the explicit nullable type must be used instead in C:\Users\HASEEB\Desktop\cash-fund-system\cash-fund-system\vendor\nunomaduro\collision\src\Adapters\Phpunit\Printer.php on line 61
+PHP Deprecated:  Method ReflectionMethod::setAccessible() is deprecated since 8.5, as it has no effect since PHP 8.1 in C:\Users\HASEEB\Desktop\cash-fund-system\cash-fund-system\vendor\nunomaduro\collision\src\Adapters\Phpunit\ConfigureIO.php on line 37
+PHP Deprecated:  NunoMaduro\Collision\Adapters\Phpunit\Style::writeRecap(): Implicitly marking parameter $timer as nullable is deprecated, the explicit nullable type must be used instead in C:\Users\HASEEB\Desktop\cash-fund-system\cash-fund-system\vendor\nunomaduro\collision\src\Adapters\Phpunit\Style.php on line 119
+PHP Deprecated:  NunoMaduro\Collision\Adapters\Phpunit\Style::testLineFrom(): Implicitly marking parameter $warning as nullable is deprecated, the explicit nullable type must be used instead in C:\Users\HASEEB\Desktop\cash-fund-system\cash-fund-system\vendor\nunomaduro\collision\src\Adapters\Phpunit\Style.php on line 252
+
+Deprecated: NunoMaduro\Collision\Adapters\Phpunit\TestResult::__construct(): Implicitly marking parameter $throwable as nullable is deprecated, the explicit nullable type must be used instead in C:\Users\HASEEB\Desktop\cash-fund-system\cash-fund-system\vendor\nunomaduro\collision\src\Adapters\Phpunit\TestResult.php on line 82
+
+Deprecated: NunoMaduro\Collision\Adapters\Phpunit\TestResult::fromTestCase(): Implicitly marking parameter $throwable as nullable is deprecated, the explicit nullable type must be used instead in C:\Users\HASEEB\Desktop\cash-fund-system\cash-fund-system\vendor\nunomaduro\collision\src\Adapters\Phpunit\TestResult.php on line 104
+PHP Deprecated:  NunoMaduro\Collision\Adapters\Phpunit\TestResult::__construct(): Implicitly marking parameter $throwable as nullable is deprecated, the explicit nullable type must be used instead in C:\Users\HASEEB\Desktop\cash-fund-system\cash-fund-system\vendor\nunomaduro\collision\src\Adapters\Phpunit\TestResult.php on line 82
+PHP Deprecated:  NunoMaduro\Collision\Adapters\Phpunit\TestResult::fromTestCase(): Implicitly marking parameter $throwable as nullable is deprecated, the explicit nullable type must be used instead in C:\Users\HASEEB\Desktop\cash-fund-system\cash-fund-system\vendor\nunomaduro\collision\src\Adapters\Phpunit\TestResult.php on line 104
+
+  [37;41;1m FAIL [39;49;22m[39m Tests\Feature\Phase8SecurityPerformanceTest[39m
+  [32;1mΓ£ô[39;22m[39m [2mpassword is hashed with bcrypt[22m[39m
+  [31;1mΓ¿»[39;22m[39m [2mcsrf token required for forms[22m[39m
+  [32;1mΓ£ô[39;22m[39m [2mdocuments stored outside public[22m[39m
+  [32;1mΓ£ô[39;22m[39m [2mdecimal precision in migrations[22m[39m
+  [32;1mΓ£ô[39;22m[39m [2mno raw sql in services[22m[39m
+  [32;1mΓ£ô[39;22m[39m [2mbcadd used for financial calculations[22m[39m
+  [32;1mΓ£ô[39;22m[39m [2mexecute action has double confirmation[22m[39m
+  [32;1mΓ£ô[39;22m[39m [2mapprove action has confirm dialog[22m[39m
+  [32;1mΓ£ô[39;22m[39m [2mcancel action has confirm dialog[22m[39m
+  [32;1mΓ£ô[39;22m[39m [2mtoggle user status has confirm dialog[22m[39m
+  [32;1mΓ£ô[39;22m[39m [2mtoggle category status has confirm dialog[22m[39m
+  [32;1mΓ£ô[39;22m[39m [2mpermissions update has confirmation modal[22m[39m
+  [32;1mΓ£ô[39;22m[39m [2mlogout has confirm dialog[22m[39m
+  [32;1mΓ£ô[39;22m[39m [2mrpt01 performance large dataset[22m[39m
+  [32;1mΓ£ô[39;22m[39m [2mrpt07 performance large dataset[22m[39m
+  [32;1mΓ£ô[39;22m[39m [2mrpt01 daily journal returns 600 movements[22m[39m
+  [32;1mΓ£ô[39;22m[39m [2mrpt07 movement statement paginates[22m[39m
+  [32;1mΓ£ô[39;22m[39m [2mbackup config exists[22m[39m
+  [32;1mΓ£ô[39;22m[39m [2mbackup cleanup keeps 30 days[22m[39m
+  [32;1mΓ£ô[39;22m[39m [2mbackup schedule configured[22m[39m
+  [32;1mΓ£ô[39;22m[39m [2mbackup includes documents directory[22m[39m
+  [32;1mΓ£ô[39;22m[39m [2mbackup command is registered[22m[39m
+  [32;1mΓ£ô[39;22m[39m [2mmain layout has rtl[22m[39m
+  [32;1mΓ£ô[39;22m[39m [2mlogin page has rtl[22m[39m
+  [32;1mΓ£ô[39;22m[39m [2mall print views have rtl[22m[39m
+  [32;1mΓ£ô[39;22m[39m [2mall standalone views have rtl[22m[39m
+  [32;1mΓ£ô[39;22m[39m [2mcsrf token in meta tag[22m[39m
+
+  [2m---[22m
+
+  [31;1mΓÇó Tests\Feature\Phase8SecurityPerformanceTest [39;22m> [31;1mcsrf token required for forms[39;22m
+Deprecated: NunoMaduro\Collision\Writer::__construct(): Implicitly marking parameter $solutionsRepository as nullable is deprecated, the explicit nullable type must be used instead in C:\Users\HASEEB\Desktop\cash-fund-system\cash-fund-system\vendor\nunomaduro\collision\src\Writer.php on line 92
+
+Deprecated: NunoMaduro\Collision\Writer::__construct(): Implicitly marking parameter $output as nullable is deprecated, the explicit nullable type must be used instead in C:\Users\HASEEB\Desktop\cash-fund-system\cash-fund-system\vendor\nunomaduro\collision\src\Writer.php on line 93
+
+Deprecated: NunoMaduro\Collision\Writer::__construct(): Implicitly marking parameter $argumentFormatter as nullable is deprecated, the explicit nullable type must be used instead in C:\Users\HASEEB\Desktop\cash-fund-system\cash-fund-system\vendor\nunomaduro\collision\src\Writer.php on line 94
+
+Deprecated: NunoMaduro\Collision\Writer::__construct(): Implicitly marking parameter $highlighter as nullable is deprecated, the explicit nullable type must be used instead in C:\Users\HASEEB\Desktop\cash-fund-system\cash-fund-system\vendor\nunomaduro\collision\src\Writer.php on line 95
+
+Deprecated: NunoMaduro\Collision\Highlighter::__construct(): Implicitly marking parameter $color as nullable is deprecated, the explicit nullable type must be used instead in C:\Users\HASEEB\Desktop\cash-fund-system\cash-fund-system\vendor\nunomaduro\collision\src\Highlighter.php on line 91
+
+  [41;1m Illuminate\Contracts\Container\BindingResolutionException [49;22m
+
+[39;1m  Target class [Illuminate\Http\Middleware\HandleMiddleware] does not exist.[39;22m
+
+  at [32mC:\Users\HASEEB\Desktop\cash-fund-system\cash-fund-system\vendor\laravel\framework\src\Illuminate\Container\Container.php[39m:[32m891[39m
+    887Γûò 
+    888Γûò         try {
+    889Γûò             $reflector = new ReflectionClass($concrete);
+    890Γûò         } catch (ReflectionException $e) {
+  Γ₧£ 891Γûò             throw new BindingResolutionException("Target class [$concrete] does not exist.", 0, $e);
+    892Γûò         }
+    893Γûò 
+    894Γûò         // If the type is not instantiable, the developer is attempting to resolve
+    895Γûò         // an abstract type such as an Interface or Abstract Class and there is
+
+  [33m1   [39m[39;1mC:\Users\HASEEB\Desktop\cash-fund-system\cash-fund-system\vendor\laravel\framework\src\Illuminate\Container\Container.php[39;22m:[39;1m889[39;22m
+  [90m    ReflectionException::("Class "Illuminate\Http\Middleware\HandleMiddleware" does not exist")[39m
+
+  [33m2   [39m[39;1mC:\Users\HASEEB\Desktop\cash-fund-system\cash-fund-system\vendor\laravel\framework\src\Illuminate\Container\Container.php[39;22m:[39;1m889[39;22m
+  [90m    ReflectionClass::__construct("Illuminate\Http\Middleware\HandleMiddleware")[39m
+
+
+  [37;1mTests:  [39;22m[31;1m1 failed[39;22m[39m, [39m[32;1m26 passed[39;22m
+  [37;1mTime:   [39;22m[39m9.80s[39m
+
+PHP Deprecated:  NunoMaduro\Collision\Writer::__construct(): Implicitly marking parameter $solutionsRepository as nullable is deprecated, the explicit nullable type must be used instead in C:\Users\HASEEB\Desktop\cash-fund-system\cash-fund-system\vendor\nunomaduro\collision\src\Writer.php on line 92
+PHP Deprecated:  NunoMaduro\Collision\Writer::__construct(): Implicitly marking parameter $output as nullable is deprecated, the explicit nullable type must be used instead in C:\Users\HASEEB\Desktop\cash-fund-system\cash-fund-system\vendor\nunomaduro\collision\src\Writer.php on line 93
+PHP Deprecated:  NunoMaduro\Collision\Writer::__construct(): Implicitly marking parameter $argumentFormatter as nullable is deprecated, the explicit nullable type must be used instead in C:\Users\HASEEB\Desktop\cash-fund-system\cash-fund-system\vendor\nunomaduro\collision\src\Writer.php on line 94
+PHP Deprecated:  NunoMaduro\Collision\Writer::__construct(): Implicitly marking parameter $highlighter as nullable is deprecated, the explicit nullable type must be used instead in C:\Users\HASEEB\Desktop\cash-fund-system\cash-fund-system\vendor\nunomaduro\collision\src\Writer.php on line 95
+PHP Deprecated:  NunoMaduro\Collision\Highlighter::__construct(): Implicitly marking parameter $color as nullable is deprecated, the explicit nullable type must be used instead in C:\Users\HASEEB\Desktop\cash-fund-system\cash-fund-system\vendor\nunomaduro\collision\src\Highlighter.php on line 91
+

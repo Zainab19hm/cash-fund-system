@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Notification;
 use App\Models\OrderFund;
+use App\Models\User;
 
 class NotificationService
 {
@@ -23,6 +24,25 @@ class NotificationService
             'message' => $messages[$type],
             'is_read' => false,
         ]);
+    }
+
+    public function notifyAdminsNewOrder(OrderFund $order): void
+    {
+        $creatorName = $order->creator->name ?? 'عميل';
+        $typeLabel = $order->type === 'payment' ? 'صرف' : 'قبض';
+        $message = "طلب {$typeLabel} جديد من {$creatorName} — رقم الطلب: {$order->order_number} — المبلغ: " . number_format($order->amount, 2);
+
+        $admins = User::where('role', 'admin')->where('is_active', true)->get();
+
+        foreach ($admins as $admin) {
+            Notification::create([
+                'user_id' => $admin->id,
+                'order_id' => $order->id,
+                'type' => 'NEW_ORDER',
+                'message' => $message,
+                'is_read' => false,
+            ]);
+        }
     }
 
     public function markAsRead(Notification $notification, int $userId): void

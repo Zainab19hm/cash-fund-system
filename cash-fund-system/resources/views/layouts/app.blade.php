@@ -30,12 +30,12 @@
 
     {{-- Header --}}
     <header class="sticky top-0 z-50 border-b border-bdr bg-surface/80 backdrop-blur">
-        <div class="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
+        <div class="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6">
             <a href="/" class="font-heading text-lg font-bold text-primary">
                 {{ config('app.name', 'Cash Fund') }}
             </a>
 
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2 sm:gap-3">
                 @auth
                     <a href="{{ route('notifications.index') }}" class="relative text-muted hover:text-text transition-colors">
                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -43,8 +43,9 @@
                         </svg>
                         <span id="notification-badge" class="absolute -top-1 -right-1 hidden min-h-[18px] min-w-[18px] rounded-full bg-primary px-1 text-[10px] font-bold text-white flex items-center justify-center"></span>
                     </a>
-                    <span class="text-sm text-muted">{{ auth()->user()->name }}</span>
-                    <form method="POST" action="{{ route('logout') }}" class="inline">
+                    <span class="hidden text-sm text-muted sm:inline">{{ auth()->user()->name }}</span>
+                    <form method="POST" action="{{ route('logout') }}" class="inline"
+                          onsubmit="return confirm('هل أنت متأكد من تسجيل الخروج؟')">
                         @csrf
                         <button type="submit" class="text-sm text-accent hover:underline">خروج</button>
                     </form>
@@ -56,7 +57,7 @@
     </header>
 
     {{-- Main Content --}}
-    <main class="mx-auto max-w-7xl px-4 py-6">
+    <main class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         {{ $slot }}
     </main>
 
@@ -87,5 +88,6 @@
         });
     </script>
     @stack('scripts')
+    <script>Alpine.start();</script>
 </body>
 </html>

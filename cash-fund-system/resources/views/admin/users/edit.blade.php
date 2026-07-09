@@ -25,11 +25,55 @@
 
             {{-- Name --}}
             <div>
-                <label for="name" class="mb-1.5 block text-sm font-semibold text-text">الاسم الكامل</label>
+                <label for="name" class="mb-1.5 block text-sm font-semibold text-text">الاسم الكامل <span class="text-red-400">*</span></label>
                 <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}" required maxlength="100"
                        class="w-full rounded-xl border border-bdr bg-bg px-4 py-3 text-sm text-text placeholder-muted transition-colors focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
                        placeholder="أدخل الاسم الكامل" />
                 @error('name')
+                    <p class="mt-1.5 text-xs text-red-400">{{ $message }}</p>
+                @enderror
+            </div>
+
+            {{-- National ID --}}
+            <div>
+                <label for="national_id" class="mb-1.5 block text-sm font-semibold text-text">رقم الهوية الوطنية <span class="text-red-400">*</span></label>
+                <input type="text" name="national_id" id="national_id" value="{{ old('national_id', $user->national_id) }}" required maxlength="20"
+                       class="w-full rounded-xl border border-bdr bg-bg px-4 py-3 text-sm text-text placeholder-muted transition-colors focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
+                       placeholder="أدخل رقم الهوية (أرقام فقط)" />
+                @error('national_id')
+                    <p class="mt-1.5 text-xs text-red-400">{{ $message }}</p>
+                @enderror
+            </div>
+
+            {{-- Employee Number --}}
+            <div>
+                <label for="employee_number" class="mb-1.5 block text-sm font-semibold text-text">الرقم الوظيفي <span class="text-red-400">*</span></label>
+                <input type="text" name="employee_number" id="employee_number" value="{{ old('employee_number', $user->employee_number) }}" required maxlength="20"
+                       class="w-full rounded-xl border border-bdr bg-bg px-4 py-3 text-sm text-text placeholder-muted transition-colors focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
+                       placeholder="مثال: EMP-0001" />
+                @error('employee_number')
+                    <p class="mt-1.5 text-xs text-red-400">{{ $message }}</p>
+                @enderror
+            </div>
+
+            {{-- Phone --}}
+            <div>
+                <label for="phone" class="mb-1.5 block text-sm font-semibold text-text">رقم الهاتف</label>
+                <input type="text" name="phone" id="phone" value="{{ old('phone', $user->phone) }}" maxlength="20"
+                       class="w-full rounded-xl border border-bdr bg-bg px-4 py-3 text-sm text-text placeholder-muted transition-colors focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
+                       placeholder="اختياري" />
+                @error('phone')
+                    <p class="mt-1.5 text-xs text-red-400">{{ $message }}</p>
+                @enderror
+            </div>
+
+            {{-- Position --}}
+            <div>
+                <label for="position" class="mb-1.5 block text-sm font-semibold text-text">المنصب</label>
+                <input type="text" name="position" id="position" value="{{ old('position', $user->position) }}" maxlength="100"
+                       class="w-full rounded-xl border border-bdr bg-bg px-4 py-3 text-sm text-text placeholder-muted transition-colors focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20"
+                       placeholder="اختياري" />
+                @error('position')
                     <p class="mt-1.5 text-xs text-red-400">{{ $message }}</p>
                 @enderror
             </div>
@@ -47,7 +91,7 @@
 
             {{-- Role --}}
             <div>
-                <label for="role" class="mb-1.5 block text-sm font-semibold text-text">الدور</label>
+                <label for="role" class="mb-1.5 block text-sm font-semibold text-text">الدور <span class="text-red-400">*</span></label>
                 <select name="role" id="role" required
                         class="w-full rounded-xl border border-bdr bg-bg px-4 py-3 text-sm text-text transition-colors focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20">
                     <option value="admin" {{ old('role', $user->role) === 'admin' ? 'selected' : '' }}>مدير النظام</option>

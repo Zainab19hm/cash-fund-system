@@ -4,7 +4,7 @@
         <x-admin-nav />
 
         {{-- Page Header --}}
-        <div class="flex items-center justify-between">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
                 <h1 class="font-heading text-2xl font-bold text-primary">إدارة الطلبات</h1>
                 <p class="mt-1 text-sm text-muted">عرض ومعالجة طلبات الصرف والقبض</p>
@@ -53,7 +53,8 @@
 
         {{-- Orders Table --}}
         <div class="overflow-hidden rounded-xl border border-bdr bg-surface">
-            <div class="overflow-x-auto">
+            {{-- Desktop Table --}}
+            <div class="hidden overflow-x-auto md:block">
                 <table class="w-full text-sm">
                     <thead>
                         <tr class="border-b border-bdr bg-bg/50">
@@ -94,6 +95,37 @@
                         @endforelse
                     </tbody>
                 </table>
+            </div>
+
+            {{-- Mobile Cards --}}
+            <div class="md:hidden divide-y divide-bdr">
+                @forelse ($orders as $order)
+                    <div class="p-4 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="font-mono text-xs text-text">{{ $order->order_number }}</span>
+                            <x-status-badge :status="$order->status" />
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold
+                                {{ $order->type === 'payment' ? 'bg-red-500/15 text-red-400' : 'bg-green-500/15 text-green-400' }}">
+                                {{ $order->type === 'payment' ? 'صرف' : 'قبض' }}
+                            </span>
+                            <span class="font-semibold text-text">{{ number_format($order->amount, 2) }}</span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs text-muted">
+                            <span>{{ $order->creator->name ?? '—' }}</span>
+                            <span>{{ $order->order_date->format('Y-m-d') }}</span>
+                        </div>
+                        <div class="flex justify-end">
+                            <a href="{{ route('admin.orders.show', $order) }}"
+                               class="text-sm font-semibold text-primary hover:underline">عرض التفاصيل</a>
+                        </div>
+                    </div>
+                @empty
+                    <div class="p-12 text-center text-muted">
+                        لا توجد طلبات
+                    </div>
+                @endforelse
             </div>
 
             @if ($orders->hasPages())

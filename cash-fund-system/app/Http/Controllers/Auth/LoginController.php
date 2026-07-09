@@ -68,9 +68,9 @@ class LoginController extends Controller
     private function redirectToDashboard($user)
     {
         $routes = [
-            'admin'   => 'admin.dashboard',
-            'investor'=> 'investor.dashboard',
-            'client'  => 'client.dashboard',
+            'admin'    => 'admin.reports.dashboard',
+            'investor' => 'investor.dashboard',
+            'client'   => 'client.dashboard',
         ];
 
         return redirect()->route($routes[$user->role] ?? $routes['client']);

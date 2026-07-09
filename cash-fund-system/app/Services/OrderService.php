@@ -25,6 +25,12 @@ class OrderService
      */
     public function createDraft(array $data, array $items, int $clientId): OrderFund
     {
+        if ($data['type'] === 'receipt' && empty($data['payer_name'])) {
+            throw ValidationException::withMessages([
+                'payer_name' => 'اسم الدافع إلزامي لطلبات القبض',
+            ]);
+        }
+
         $itemsTotal = collect($items)->reduce(function ($sum, $item) {
             return bcadd($sum, number_format($item['amount'], 2, '.', ''), 2);
         }, '0.00');
@@ -35,12 +41,23 @@ class OrderService
             ]);
         }
 
+        // Server-side category type validation
+        foreach ($items as $item) {
+            $category = \App\Models\Category::find($item['category_id']);
+            if (!$category || !in_array($category->type, [$data['type'], 'both'])) {
+                throw ValidationException::withMessages([
+                    'items' => "تصنيف \"{$category?->name}\" لا يتوافق مع نوع الطلب المختار",
+                ]);
+            }
+        }
+
         return DB::transaction(function () use ($data, $items, $clientId) {
             $order = OrderFund::create([
                 'order_number' => $this->orderNumberService->generate(),
                 'type'         => $data['type'],
                 'amount'       => $data['amount'],
                 'description'  => $data['description'] ?? null,
+                'payer_name'   => $data['type'] === 'receipt' ? ($data['payer_name'] ?? null) : null,
                 'status'       => 'DRAFT',
                 'order_date'   => $data['order_date'],
                 'created_by'   => $clientId,
@@ -79,6 +96,8 @@ class OrderService
         }
 
         $order->update(['status' => 'PENDING']);
+
+        $this->notificationService->notifyAdminsNewOrder($order);
     }
 
     public function approve(OrderFund $order, int $approvedBy): void

@@ -23,7 +23,7 @@ class RegressionTest extends TestCase
     {
         $this->seedAndLogin();
         $response = $this->get(route('admin.dashboard'));
-        $response->assertOk();
+        $response->assertRedirect(route('admin.reports.dashboard'));
     }
 
     public function test_user_management_routes_registered(): void

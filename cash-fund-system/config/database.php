@@ -59,6 +59,11 @@ return [
             'strict' => true,
             'engine' => null,
             'options' => [],
+            'dump' => [
+                'dumpBinaryPath' => env('MYSQL_DUMP_PATH', ''),
+                'useSingleTransaction' => true,
+                'timeout' => 60,
+            ],
         ],
 
         'pgsql' => [

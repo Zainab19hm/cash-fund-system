@@ -33,14 +33,15 @@
             @csrf
 
             <div class="overflow-hidden rounded-xl border border-bdr bg-surface">
-                <div class="overflow-x-auto">
+                {{-- Desktop Table --}}
+                <div class="hidden overflow-x-auto md:block">
                     <table class="w-full text-sm">
                         <thead>
                             <tr class="border-b border-bdr bg-bg/50">
-                                <th class="px-6 py-3 text-right font-semibold text-muted min-w-[220px]">الصلاحية</th>
-                                <th class="px-6 py-3 text-center font-semibold text-muted min-w-[140px]">مدير النظام</th>
-                                <th class="px-6 py-3 text-center font-semibold text-muted min-w-[140px]">مستثمر</th>
-                                <th class="px-6 py-3 text-center font-semibold text-muted min-w-[140px]">عميل</th>
+                                <th class="px-4 py-3 text-right font-semibold text-muted lg:px-6">الصلاحية</th>
+                                <th class="px-4 py-3 text-center font-semibold text-muted lg:px-6">مدير النظام</th>
+                                <th class="px-4 py-3 text-center font-semibold text-muted lg:px-6">مستثمر</th>
+                                <th class="px-4 py-3 text-center font-semibold text-muted lg:px-6">عميل</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-bdr">
@@ -51,11 +52,11 @@
                                     $clientChecked = in_array($perm->id, $rolePermissions['client'] ?? []);
                                 @endphp
                                 <tr class="transition-colors hover:bg-bg/50">
-                                    <td class="px-6 py-3">
+                                    <td class="px-4 py-3 lg:px-6">
                                         <span class="font-semibold text-text">{{ $perm->label }}</span>
                                         <span class="mr-2 text-xs text-muted">({{ $perm->key }})</span>
                                     </td>
-                                    <td class="px-6 py-3 text-center">
+                                    <td class="px-4 py-3 text-center lg:px-6">
                                         <input type="checkbox"
                                                name="assignments[]"
                                                value="{{ json_encode(['role' => 'admin', 'permission_id' => $perm->id]) }}"
@@ -64,7 +65,7 @@
                                                class="h-4 w-4 rounded border-bdr text-primary focus:ring-2 focus:ring-primary/20"
                                                @change="trackChange()" />
                                     </td>
-                                    <td class="px-6 py-3 text-center">
+                                    <td class="px-4 py-3 text-center lg:px-6">
                                         <input type="checkbox"
                                                name="assignments[]"
                                                value="{{ json_encode(['role' => 'investor', 'permission_id' => $perm->id]) }}"
@@ -73,7 +74,7 @@
                                                class="h-4 w-4 rounded border-bdr text-primary focus:ring-2 focus:ring-primary/20"
                                                @change="trackChange()" />
                                     </td>
-                                    <td class="px-6 py-3 text-center">
+                                    <td class="px-4 py-3 text-center lg:px-6">
                                         <input type="checkbox"
                                                name="assignments[]"
                                                value="{{ json_encode(['role' => 'client', 'permission_id' => $perm->id]) }}"
@@ -86,6 +87,52 @@
                             @endforeach
                         </tbody>
                     </table>
+                </div>
+
+                {{-- Mobile Cards --}}
+                <div class="md:hidden">
+                    @foreach ($permissions as $perm)
+                        @php
+                            $adminChecked = in_array($perm->id, $rolePermissions['admin'] ?? []);
+                            $investorChecked = in_array($perm->id, $rolePermissions['investor'] ?? []);
+                            $clientChecked = in_array($perm->id, $rolePermissions['client'] ?? []);
+                        @endphp
+                        <div class="border-b border-bdr p-4 last:border-b-0">
+                            <div class="mb-3">
+                                <span class="font-semibold text-text">{{ $perm->label }}</span>
+                                <span class="mr-2 text-xs text-muted">({{ $perm->key }})</span>
+                            </div>
+                            <div class="flex flex-wrap gap-4">
+                                <label class="flex items-center gap-2">
+                                    <input type="checkbox"
+                                           name="assignments[]"
+                                           value="{{ json_encode(['role' => 'admin', 'permission_id' => $perm->id]) }}"
+                                           {{ $adminChecked ? 'checked' : '' }}
+                                           class="h-4 w-4 rounded border-bdr text-primary focus:ring-2 focus:ring-primary/20"
+                                           @change="trackChange()" />
+                                    <span class="text-sm text-muted">مدير النظام</span>
+                                </label>
+                                <label class="flex items-center gap-2">
+                                    <input type="checkbox"
+                                           name="assignments[]"
+                                           value="{{ json_encode(['role' => 'investor', 'permission_id' => $perm->id]) }}"
+                                           {{ $investorChecked ? 'checked' : '' }}
+                                           class="h-4 w-4 rounded border-bdr text-primary focus:ring-2 focus:ring-primary/20"
+                                           @change="trackChange()" />
+                                    <span class="text-sm text-muted">مستثمر</span>
+                                </label>
+                                <label class="flex items-center gap-2">
+                                    <input type="checkbox"
+                                           name="assignments[]"
+                                           value="{{ json_encode(['role' => 'client', 'permission_id' => $perm->id]) }}"
+                                           {{ $clientChecked ? 'checked' : '' }}
+                                           class="h-4 w-4 rounded border-bdr text-primary focus:ring-2 focus:ring-primary/20"
+                                           @change="trackChange()" />
+                                    <span class="text-sm text-muted">عميل</span>
+                                </label>
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
 
                 {{-- Save Button --}}

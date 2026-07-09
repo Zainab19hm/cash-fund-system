@@ -11,13 +11,17 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         DB::table('users')->insert([
-            'name'          => 'System Admin',
-            'username'      => 'admin',
-            'password'      => Hash::make('password'),
-            'role'          => 'admin',
-            'is_active'     => true,
-            'created_at'    => now(),
-            'updated_at'    => now(),
+            'name'            => 'System Admin',
+            'national_id'     => '000000001',
+            'employee_number' => 'EMP-0001',
+            'phone'           => null,
+            'position'        => null,
+            'username'        => 'admin',
+            'password'        => Hash::make('password'),
+            'role'            => 'admin',
+            'is_active'       => true,
+            'created_at'      => now(),
+            'updated_at'      => now(),
         ]);
 
         $permissions = [
@@ -37,7 +41,6 @@ class DatabaseSeeder extends Seeder
 
         $rolePermissions = [];
         foreach ($permissionRows as $perm) {
-            // create_order is client-only — skip for admin
             if ($perm->key === 'create_order') {
                 continue;
             }
@@ -61,15 +64,6 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        $categories = [
-            ['name' => 'رواتب',         'type' => 'payment', 'is_active' => true, 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'مستلزمات مكتبية', 'type' => 'payment', 'is_active' => true, 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'صيانة',          'type' => 'payment', 'is_active' => true, 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'إيرادات مبيعات',  'type' => 'receipt', 'is_active' => true, 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'دعم مستثمرين',    'type' => 'receipt', 'is_active' => true, 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'خدمات متنوعة',    'type' => 'both',    'is_active' => true, 'created_at' => now(), 'updated_at' => now()],
-        ];
-
-        DB::table('categories')->insert($categories);
+        $this->call(CategorySeeder::class);
     }
 }

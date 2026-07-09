@@ -15,6 +15,7 @@ class OrderFund extends Model
         'type',
         'amount',
         'description',
+        'payer_name',
         'status',
         'order_date',
         'created_by',
