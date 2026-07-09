@@ -62,3 +62,28 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+
+
+ االعتماديات  تثبيت .1 
+#
+composer install 
+npm install && npm run build 
+   البيئة  إعداد .2 
+#
+cp .env.example .env 
+php artisan key:generate  MAIL_FROM_ADDRESSو  MYSQL_DUMP_PATHو ،env. بـ MySQL بيانات اضبط 
+#
+   البيانات  قاعدة .3 
+#
+php artisan migrate --seed 
+   التخزيني  الربط .4 
+#
+php artisan storage:link 
+   )production( الجدولة تفعيل .5 
+#
+* * * * * cd /path-to-project && php artisan schedule:run >> /dev/null 2>&1 
+  رين مين االخ د اسم المستخدم الموجود ك ادمن وهو من يضيف المستخ-
+ 
+ username: admin 
+ Password: Un[Ud26@p^w#C8xq
