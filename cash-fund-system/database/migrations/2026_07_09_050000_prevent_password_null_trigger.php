@@ -7,6 +7,12 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // This trigger uses MySQL-specific syntax (IF/SIGNAL SQLSTATE).
+        // Skip silently when running on SQLite (e.g. the in-memory test database).
+        if (DB::getDriverName() !== 'mysql') {
+            return;
+        }
+
         DB::unprepared('
             CREATE TRIGGER prevent_password_null_before_update
             BEFORE UPDATE ON `users`
@@ -22,6 +28,10 @@ return new class extends Migration
 
     public function down(): void
     {
+        if (DB::getDriverName() !== 'mysql') {
+            return;
+        }
+
         DB::unprepared('DROP TRIGGER IF EXISTS `prevent_password_null_before_update`');
     }
 };

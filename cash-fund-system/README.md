@@ -85,5 +85,3 @@ php artisan storage:link
 * * * * * cd /path-to-project && php artisan schedule:run >> /dev/null 2>&1 
   رين مين االخ د اسم المستخدم الموجود ك ادمن وهو من يضيف المستخ-
  
- username: admin 
- Password: Un[Ud26@p^w#C8xq

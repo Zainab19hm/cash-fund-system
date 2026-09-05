@@ -24,6 +24,18 @@ class PermissionController extends Controller
 
     public function update(Request $request)
     {
+        // The Blade view submits each checkbox value as a JSON-encoded string
+        // (e.g. '{"role":"admin","permission_id":1}'). Decode every element of
+        // the assignments array back into an associative array before validation
+        // so that the nested validation rules can inspect the actual keys.
+        if ($request->has('assignments') && is_array($request->input('assignments'))) {
+            $decoded = array_map(
+                fn($item) => is_string($item) ? json_decode($item, true) : $item,
+                $request->input('assignments')
+            );
+            $request->merge(['assignments' => $decoded]);
+        }
+
         $request->validate([
             'assignments'   => 'required|array',
             'assignments.*' => 'array',

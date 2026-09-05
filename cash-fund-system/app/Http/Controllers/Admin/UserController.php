@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\AccountActivated;
 use App\Models\User;
 use App\Rules\StrongPassword;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
@@ -166,6 +168,16 @@ class UserController extends Controller
         $user->update(['is_active' => !$user->is_active]);
 
         $this->logAudit('update', $user->id, 'toggle_status');
+
+        // Send activation email when the account is being activated and user has an email
+        if ($user->is_active && $user->email) {
+            try {
+                Mail::to($user->email)->send(new AccountActivated($user));
+            } catch (\Throwable $e) {
+                // Log the failure but don't interrupt the admin's workflow
+                logger()->error('Account activation email failed for user ' . $user->id . ': ' . $e->getMessage());
+            }
+        }
 
         return redirect()->route('admin.users.index')
             ->with('success', $user->is_active

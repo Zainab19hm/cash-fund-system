@@ -144,6 +144,14 @@
                     تسجيل الدخول
                 </button>
             </form>
+
+            {{-- Link to register --}}
+            <p class="mt-6 text-center text-sm text-muted">
+                ليس لديك حساب؟
+                <a href="{{ route('register') }}" class="font-semibold text-primary hover:underline">
+                    إنشاء حساب جديد
+                </a>
+            </p>
         </div>
 
         {{-- Footer --}}

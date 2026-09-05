@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\PermissionController;
 use App\Http\Controllers\Admin\CategoryController;
@@ -30,6 +31,15 @@ Route::get('/login', [LoginController::class, 'showLoginForm'])
 Route::post('/login', [LoginController::class, 'login'])
     ->name('login')
     ->middleware('throttle:login');
+
+// ── Register Routes (guest only) ─────────────────────────────
+Route::middleware('guest')->group(function () {
+    Route::get('/register', [RegisterController::class, 'showRegistrationForm'])
+        ->name('register');
+
+    Route::post('/register', [RegisterController::class, 'register'])
+        ->name('register');
+});
 
 Route::post('/logout', [LoginController::class, 'logout'])
     ->name('logout')

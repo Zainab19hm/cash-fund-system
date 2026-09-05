@@ -12,12 +12,28 @@ class DatabaseSeeder extends Seeder
     {
         DB::table('users')->insert([
             'name'            => 'System Admin',
+            'email'           => 'admin@example.com',
             'national_id'     => '000000001',
             'employee_number' => 'EMP-0001',
             'phone'           => null,
             'position'        => null,
             'username'        => 'admin',
             'password'        => Hash::make('password'),
+            'role'            => 'admin',
+            'is_active'       => true,
+            'created_at'      => now(),
+            'updated_at'      => now(),
+        ]);
+
+        DB::table('users')->insert([
+            'name'            => 'Super Admin',
+            'email'           => 'superadmin@example.com',
+            'national_id'     => '000000002',
+            'employee_number' => 'EMP-0002',
+            'phone'           => null,
+            'position'        => null,
+            'username'        => 'superAdmin',
+            'password'        => Hash::make('Super123?'),
             'role'            => 'admin',
             'is_active'       => true,
             'created_at'      => now(),
