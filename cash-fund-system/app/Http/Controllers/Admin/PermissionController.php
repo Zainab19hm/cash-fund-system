@@ -24,22 +24,31 @@ class PermissionController extends Controller
 
     public function update(Request $request)
     {
-        // The Blade view submits each checkbox value as a JSON-encoded string
-        // (e.g. '{"role":"admin","permission_id":1}'). Decode every element of
-        // the assignments array back into an associative array before validation
-        // so that the nested validation rules can inspect the actual keys.
-        if ($request->has('assignments') && is_array($request->input('assignments'))) {
-            $decoded = array_map(
-                fn($item) => is_string($item) ? json_decode($item, true) : $item,
-                $request->input('assignments')
-            );
-            $request->merge(['assignments' => $decoded]);
+        // The Blade view submits each checked checkbox value as a JSON-encoded
+        // string e.g. '{"role":"admin","permission_id":1}'.
+        // Decode every element back to an associative array so nested validation
+        // rules can inspect the actual keys.
+        // Also handle the case where no checkboxes are checked (assignments absent).
+        $raw = $request->input('assignments', []);
+
+        if (!is_array($raw)) {
+            $raw = [];
         }
 
+        $decoded = array_values(array_filter(
+            array_map(
+                fn($item) => is_string($item) ? json_decode($item, true) : (is_array($item) ? $item : null),
+                $raw
+            ),
+            fn($item) => is_array($item)  // drop any items that failed to decode
+        ));
+
+        $request->merge(['assignments' => $decoded]);
+
         $request->validate([
-            'assignments'   => 'required|array',
+            'assignments'   => 'present|array',
             'assignments.*' => 'array',
-            'assignments.*.role'         => 'required|in:admin,investor,client',
+            'assignments.*.role'          => 'required|in:admin,investor,client',
             'assignments.*.permission_id' => 'required|integer|exists:permissions,id',
         ]);
 

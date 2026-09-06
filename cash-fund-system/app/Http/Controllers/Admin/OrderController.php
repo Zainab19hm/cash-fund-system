@@ -59,6 +59,11 @@ class OrderController extends Controller
 
     public function approve(OrderFund $order)
     {
+        // FIX #4: enforce granular permission — role alone is not enough.
+        if (!auth()->user()->hasPermission('approve_order')) {
+            abort(403, 'ليس لديك صلاحية اعتماد الطلبات.');
+        }
+
         $this->orderService->approve($order, auth()->id());
 
         return redirect()->route('admin.orders.show', $order)
@@ -67,6 +72,11 @@ class OrderController extends Controller
 
     public function reject(Request $request, OrderFund $order)
     {
+        // FIX #4
+        if (!auth()->user()->hasPermission('reject_order')) {
+            abort(403, 'ليس لديك صلاحية رفض الطلبات.');
+        }
+
         $validated = $request->validate([
             'rejection_reason' => 'required|string|max:1000',
         ]);
@@ -79,6 +89,11 @@ class OrderController extends Controller
 
     public function execute(Request $request, OrderFund $order)
     {
+        // FIX #4
+        if (!auth()->user()->hasPermission('execute_order')) {
+            abort(403, 'ليس لديك صلاحية تنفيذ الطلبات.');
+        }
+
         $request->validate([
             'confirm_execute' => 'required|in:EXECUTE',
         ]);
@@ -91,6 +106,11 @@ class OrderController extends Controller
 
     public function cancel(OrderFund $order)
     {
+        // FIX #4
+        if (!auth()->user()->hasPermission('cancel_order')) {
+            abort(403, 'ليس لديك صلاحية إلغاء الطلبات.');
+        }
+
         $this->orderService->cancel($order, auth()->id());
 
         return redirect()->route('admin.orders.show', $order)

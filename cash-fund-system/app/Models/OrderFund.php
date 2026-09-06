@@ -26,14 +26,16 @@ class OrderFund extends Model
         'executed_by',
         'executed_at',
         'cancelled_by',
+        'cancelled_at', // FIX #9: added to support cancel timestamp
         'notes',
     ];
 
     protected $casts = [
-        'amount' => 'decimal:2',
-        'order_date' => 'date',
-        'approved_at' => 'datetime',
-        'executed_at' => 'datetime',
+        'amount'       => 'decimal:2',
+        'order_date'   => 'date',
+        'approved_at'  => 'datetime',
+        'executed_at'  => 'datetime',
+        'cancelled_at' => 'datetime', // FIX #9
     ];
 
     public function creator(): BelongsTo

@@ -6,6 +6,16 @@ use Illuminate\Contracts\Validation\Rule;
 
 class StrongPassword implements Rule
 {
+    /**
+     * @param string|null $name     The user's full name (passed explicitly so the
+     *                              rule works at registration when no session user exists).
+     * @param string|null $username The user's chosen username (same reason).
+     */
+    public function __construct(
+        private readonly ?string $name = null,
+        private readonly ?string $username = null,
+    ) {}
+
     private array $commonPasswords = [
         'password', '123456', '12345678', 'qwerty', 'abc123', 'monkey', 'master',
         'dragon', 'login', 'princess', 'football', 'shadow', 'sunshine', 'trustno1',
@@ -42,8 +52,12 @@ class StrongPassword implements Rule
             return false;
         }
 
-        $name = strtolower(auth()->user()->name ?? '');
-        $username = strtolower(auth()->user()->username ?? '');
+        // FIX #3: Use constructor-injected values first; fall back to the
+        // authenticated user only when the rule is used in non-registration
+        // contexts (e.g. admin password reset). This prevents a null-dereference
+        // and ensures the check actually runs during registration.
+        $name     = strtolower($this->name ?? auth()->user()?->name ?? '');
+        $username = strtolower($this->username ?? auth()->user()?->username ?? '');
         $valueLower = strtolower($value);
 
         if ($name && str_contains($valueLower, $name)) {

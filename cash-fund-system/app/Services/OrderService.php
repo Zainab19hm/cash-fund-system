@@ -159,6 +159,7 @@ class OrderService
         $order->update([
             'status'       => 'CANCELLED',
             'cancelled_by' => $cancelledBy,
+            'cancelled_at' => now(), // FIX #9: record cancellation timestamp
         ]);
     }
 
@@ -182,6 +183,14 @@ class OrderService
                 : bcmul($order->amount, '-1', 2);
 
             $newBalance = bcadd($currentBalance, $delta, 2);
+
+            // FIX #6: prevent executing a payment that would leave the fund
+            // with a negative balance — financial integrity check.
+            if (bccomp($newBalance, '0.00', 2) < 0) {
+                throw ValidationException::withMessages([
+                    'amount' => 'رصيد الصندوق غير كافٍ لتنفيذ هذا الطلب — الرصيد الحالي: ' . number_format((float) $currentBalance, 2) . '، المبلغ المطلوب: ' . number_format((float) $order->amount, 2),
+                ]);
+            }
 
             DailyMovement::create([
                 'order_id'      => $order->id,

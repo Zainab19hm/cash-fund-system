@@ -85,3 +85,18 @@ php artisan storage:link
 * * * * * cd /path-to-project && php artisan schedule:run >> /dev/null 2>&1 
   رين مين االخ د اسم المستخدم الموجود ك ادمن وهو من يضيف المستخ-
  
+superAdmin
+Super123?
+
+
+
+  إعداد Gmail SMTP
+الخطوة 1:
+ تفعيل( 2-Step Verification) على حساب (Gmail)
+اذهب لـ myaccount.google.com/security وفعّل التحقق الثنائي.
+
+الخطوة 2: إنشاء App Password
+اذهب لـ myaccount.google.com/apppasswords
+اختر Mail و Windows Computer
+اضغط Generate — ستحصل على باسورد مكوّن من 16 حرف
+ثم تحديث البيانات في ملف env 

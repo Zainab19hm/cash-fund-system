@@ -67,12 +67,18 @@ class LoginController extends Controller
 
     private function redirectToDashboard($user)
     {
+        // FIX #10: unknown roles no longer silently fall through to the client
+        // dashboard — they get a 403 so the problem is visible immediately.
         $routes = [
             'admin'    => 'admin.reports.dashboard',
             'investor' => 'investor.dashboard',
             'client'   => 'client.dashboard',
         ];
 
-        return redirect()->route($routes[$user->role] ?? $routes['client']);
+        if (!isset($routes[$user->role])) {
+            abort(403, 'دور المستخدم غير معروف — تواصل مع مدير النظام.');
+        }
+
+        return redirect()->route($routes[$user->role]);
     }
 }

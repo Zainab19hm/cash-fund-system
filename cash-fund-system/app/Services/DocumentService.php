@@ -62,9 +62,19 @@ class DocumentService
         // Store outside public: storage/app/private/documents/{order_id}/
         $path = $file->store("private/documents/{$order->id}", 'local');
 
+        // FIX #12: sanitize the original filename before persisting it.
+        // The browser-supplied name may contain path traversal sequences or
+        // other dangerous characters — strip everything except safe chars.
+        $rawName  = $file->getClientOriginalName();
+        $safeName = preg_replace('/[^A-Za-z0-9._\- \x{0600}-\x{06FF}]/u', '_', $rawName);
+        $safeName = ltrim($safeName, '.'); // prevent dotfile names like ".htaccess"
+        if ($safeName === '' || $safeName === '_') {
+            $safeName = 'document.' . $extension;
+        }
+
         return Document::create([
             'order_id'    => $order->id,
-            'file_name'   => $file->getClientOriginalName(),
+            'file_name'   => $safeName,
             'file_path'   => $path,
             'file_type'   => $extension,
             'file_size'   => $file->getSize(),

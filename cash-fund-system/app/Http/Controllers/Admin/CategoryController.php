@@ -105,23 +105,10 @@ class CategoryController extends Controller
 
     private function authorizeManageCategories(): void
     {
-        $userId = auth()->id();
-        $userRole = auth()->user()->role;
-
-        $permission = DB::table('permissions')
-            ->where('key', 'manage_categories')
-            ->first();
-
-        if (!$permission) {
-            abort(403, 'غير مصرح لك بهذه العملية.');
-        }
-
-        $has = DB::table('role_permissions')
-            ->where('role', $userRole)
-            ->where('permission_id', $permission->id)
-            ->exists();
-
-        if (!$has) {
+        // FIX #4: use User::hasPermission() which respects both role_permissions
+        // AND per-user overrides in user_permissions — the old raw DB query
+        // only checked role_permissions and ignored individual grants/revokes.
+        if (!auth()->user()->hasPermission('manage_categories')) {
             abort(403, 'غير مصرح لك بهذه العملية.');
         }
     }

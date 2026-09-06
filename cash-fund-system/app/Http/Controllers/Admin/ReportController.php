@@ -178,6 +178,8 @@ class ReportController extends Controller
 
     public function dailyJournalPrint(Request $request)
     {
+        // FIX #11: validate date param on print routes just like the non-print counterparts.
+        $request->validate(['date' => 'nullable|date']);
         $date = $request->input('date');
         return view('admin.reports.prints.daily-journal', [
             'movements' => $this->reportService->dailyJournal($date),
@@ -187,6 +189,12 @@ class ReportController extends Controller
 
     public function ordersStatusPrint(Request $request)
     {
+        // FIX #11
+        $request->validate([
+            'status' => 'nullable|in:DRAFT,PENDING,APPROVED,REJECTED,EXECUTED,CANCELLED',
+            'from'   => 'nullable|date',
+            'to'     => 'nullable|date|after_or_equal:from',
+        ]);
         return view('admin.reports.prints.orders-status', [
             'orders' => $this->reportService->ordersWithStatus(
                 $request->input('status'),
@@ -206,6 +214,12 @@ class ReportController extends Controller
 
     public function userActivityPrint(Request $request)
     {
+        // FIX #11
+        $request->validate([
+            'user_id' => 'nullable|integer|exists:users,id',
+            'from'    => 'nullable|date',
+            'to'      => 'nullable|date|after_or_equal:from',
+        ]);
         return view('admin.reports.prints.user-activity', [
             'activities' => $this->reportService->userActivity(
                 $request->input('user_id'),
@@ -225,6 +239,11 @@ class ReportController extends Controller
 
     public function movementStatementPrint(Request $request)
     {
+        // FIX #11
+        $request->validate([
+            'from' => 'nullable|date',
+            'to'   => 'nullable|date|after_or_equal:from',
+        ]);
         $from = $request->input('from');
         $to = $request->input('to');
         $movements = null;
@@ -240,6 +259,11 @@ class ReportController extends Controller
 
     public function totalsPrint(Request $request)
     {
+        // FIX #11
+        $request->validate([
+            'from' => 'nullable|date',
+            'to'   => 'nullable|date|after_or_equal:from',
+        ]);
         return view('admin.reports.prints.totals', [
             'totals' => $this->reportService->totalsByType(
                 $request->input('from'),
@@ -251,6 +275,11 @@ class ReportController extends Controller
 
     public function expensesByCategoryPrint(Request $request)
     {
+        // FIX #11
+        $request->validate([
+            'from' => 'nullable|date',
+            'to'   => 'nullable|date|after_or_equal:from',
+        ]);
         return view('admin.reports.prints.expenses-by-category', [
             'expenses' => $this->reportService->expensesByCategory(
                 $request->input('from'),

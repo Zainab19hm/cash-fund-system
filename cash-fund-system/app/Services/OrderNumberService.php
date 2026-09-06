@@ -44,7 +44,9 @@ class OrderNumberService
                 ->where('year', $year)
                 ->update(['last_number' => $nextNumber, 'updated_at' => now()]);
 
-            return sprintf('ORD-%d-%03d', $year, $nextNumber);
+            // FIX #7: use %04d so numbers up to 9999 stay fixed-width.
+            // Four digits supports 9999 orders/year before the format changes.
+            return sprintf('ORD-%d-%04d', $year, $nextNumber);
         });
     }
 }

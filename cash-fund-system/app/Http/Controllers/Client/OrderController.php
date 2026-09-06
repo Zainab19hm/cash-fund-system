@@ -38,6 +38,12 @@ class OrderController extends Controller
 
     public function store(Request $request)
     {
+        // FIX #4: verify the client still has the create_order permission —
+        // an admin may have individually revoked it even while the role has it.
+        if (!auth()->user()->hasPermission('create_order')) {
+            abort(403, 'ليس لديك صلاحية إنشاء طلبات.');
+        }
+
         $validated = $request->validate([
             'type'        => 'required|in:payment,receipt',
             'amount'      => 'required|numeric|min:0.01',

@@ -141,16 +141,6 @@
                                 </td>
                                 <td class="px-4 py-3">
                                     <div class="flex items-center justify-center gap-2">
-                                        {{-- Edit --}}
-                                        <a href="{{ route('admin.users.edit', $user) }}"
-                                           class="inline-flex items-center gap-1.5 rounded-lg border border-bdr bg-surface px-3 py-1.5 text-xs font-semibold text-text transition-colors hover:bg-bg"
-                                           title="تعديل">
-                                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
-                                            </svg>
-                                            تعديل
-                                        </a>
-
                                         {{-- Reset Password --}}
                                         <button type="button"
                                                 onclick="document.getElementById('modal-reset-{{ $user->id }}').style.display='flex'"
@@ -160,6 +150,17 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
                                             </svg>
                                             كلمة سر
+                                        </button>
+
+                                        {{-- Permissions --}}
+                                        <button type="button"
+                                                onclick="document.getElementById('modal-perms-{{ $user->id }}').style.display='flex'"
+                                                class="inline-flex items-center gap-1.5 rounded-lg border border-accent/30 bg-surface px-3 py-1.5 text-xs font-semibold text-accent transition-colors hover:bg-accent/10"
+                                                title="صلاحيات المستخدم">
+                                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                                            </svg>
+                                            صلاحيات
                                         </button>
 
                                         {{-- Toggle Status --}}
@@ -228,14 +229,15 @@
                             <span>{{ $user->last_login_at ? $user->last_login_at->diffForHumans() : 'آخر دخول: —' }}</span>
                         </div>
                         <div class="flex items-center gap-2">
-                            <a href="{{ route('admin.users.edit', $user) }}"
-                               class="inline-flex items-center gap-1.5 rounded-lg border border-bdr bg-surface px-3 py-1.5 text-xs font-semibold text-text transition-colors hover:bg-bg">
-                                تعديل
-                            </a>
                             <button type="button"
                                     onclick="document.getElementById('modal-reset-{{ $user->id }}').style.display='flex'"
                                     class="inline-flex items-center gap-1.5 rounded-lg border border-bdr bg-surface px-3 py-1.5 text-xs font-semibold text-text transition-colors hover:bg-bg">
                                 كلمة سر
+                            </button>
+                            <button type="button"
+                                    onclick="document.getElementById('modal-perms-{{ $user->id }}').style.display='flex'"
+                                    class="inline-flex items-center gap-1.5 rounded-lg border border-accent/30 bg-surface px-3 py-1.5 text-xs font-semibold text-accent transition-colors hover:bg-accent/10">
+                                صلاحيات
                             </button>
                             <form method="POST" action="{{ route('admin.users.toggle-status', $user) }}" class="inline">
                                 @csrf
@@ -315,6 +317,109 @@
                         <button type="submit"
                                 class="rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:shadow-primary/30 hover:brightness-110 active:scale-[0.98]">
                             إعادة التعيين
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endforeach
+
+    {{-- Permissions Modals (one per user) --}}
+    @foreach ($users as $user)
+        @php
+            $rolePermIds  = $rolePermissions[$user->role] ?? [];
+            $userPermRows = $userPermissions[$user->id] ?? [];
+        @endphp
+        <div id="modal-perms-{{ $user->id }}"
+             class="fixed inset-0 z-50 items-center justify-center p-4"
+             style="display: none;">
+            <div class="fixed inset-0 bg-black/50" onclick="document.getElementById('modal-perms-{{ $user->id }}').style.display='none'"></div>
+            <div class="relative w-full max-w-lg rounded-2xl border border-bdr bg-surface p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+                {{-- Header --}}
+                <div class="mb-1 flex items-center justify-between">
+                    <h3 class="font-heading text-lg font-bold text-primary">صلاحيات المستخدم</h3>
+                    <button onclick="document.getElementById('modal-perms-{{ $user->id }}').style.display='none'" class="text-muted hover:text-text">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <p class="mb-4 text-sm text-muted">
+                    {{ $user->name }} —
+                    @if ($user->role === 'admin') مدير النظام
+                    @elseif ($user->role === 'investor') مستثمر
+                    @else عميل
+                    @endif
+                </p>
+
+                {{-- Legend --}}
+                <div class="mb-4 flex flex-wrap gap-3 text-xs">
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-primary">
+                        <span class="h-2 w-2 rounded-full bg-primary"></span>
+                        ممنوحة من الدور
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-accent/10 px-3 py-1 text-accent">
+                        <span class="h-2 w-2 rounded-full bg-accent"></span>
+                        ممنوحة بشكل خاص
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-red-500/10 px-3 py-1 text-red-400">
+                        <span class="h-2 w-2 rounded-full bg-red-400"></span>
+                        مسحوبة من الدور
+                    </span>
+                </div>
+
+                <form action="{{ route('admin.users.update-permissions', $user) }}" method="POST">
+                    @csrf
+
+                    <div class="space-y-2 mb-6">
+                        @foreach ($permissions as $perm)
+                            @php
+                                $fromRole    = in_array($perm->id, $rolePermIds);
+                                $userPerm    = $userPermRows[$perm->id] ?? null;
+                                // الحالة الفعلية للمستخدم
+                                $isGranted   = $userPerm !== null ? (bool)$userPerm->granted : $fromRole;
+                                // هل هناك تجاوز خاص؟
+                                $isOverridden = $userPerm !== null;
+                                $isRevoked    = $isOverridden && !$userPerm->granted;
+                                $isExtra      = $isOverridden && $userPerm->granted && !$fromRole;
+                            @endphp
+                            <label class="flex items-center justify-between rounded-xl border px-4 py-3 cursor-pointer transition-colors
+                                {{ $isRevoked ? 'border-red-500/20 bg-red-500/5' : ($isExtra ? 'border-accent/20 bg-accent/5' : ($fromRole ? 'border-primary/10 bg-primary/5' : 'border-bdr bg-bg/30')) }}">
+                                <div class="flex items-center gap-3">
+                                    <input type="checkbox"
+                                           name="permissions[]"
+                                           value="{{ $perm->id }}"
+                                           {{ $isGranted ? 'checked' : '' }}
+                                           class="h-4 w-4 rounded border-bdr text-primary focus:ring-2 focus:ring-primary/20" />
+                                    <div>
+                                        <p class="text-sm font-semibold text-text">{{ $perm->label }}</p>
+                                        <p class="text-xs text-muted">{{ $perm->key }}</p>
+                                    </div>
+                                </div>
+                                <div class="shrink-0">
+                                    @if ($isRevoked)
+                                        <span class="text-xs text-red-400">مسحوبة</span>
+                                    @elseif ($isExtra)
+                                        <span class="text-xs text-accent">خاصة</span>
+                                    @elseif ($fromRole)
+                                        <span class="text-xs text-primary">من الدور</span>
+                                    @else
+                                        <span class="text-xs text-muted">غير ممنوحة</span>
+                                    @endif
+                                </div>
+                            </label>
+                        @endforeach
+                    </div>
+
+                    <div class="flex items-center justify-end gap-3">
+                        <button type="button"
+                                onclick="document.getElementById('modal-perms-{{ $user->id }}').style.display='none'"
+                                class="rounded-xl border border-bdr bg-surface px-5 py-2.5 text-sm font-semibold text-text transition-colors hover:bg-bg">
+                            إلغاء
+                        </button>
+                        <button type="submit"
+                                class="rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-white shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:shadow-primary/30 hover:brightness-110 active:scale-[0.98]">
+                            حفظ الصلاحيات
                         </button>
                     </div>
                 </form>

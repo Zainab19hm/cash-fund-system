@@ -148,8 +148,12 @@ class ReportService
     // RPT-14: سجل التدقيق (الطالب، الموافق، التاريخ) — مبني فوق orders_fund
     public function auditTrailReport(): LengthAwarePaginator
     {
-        return OrderFund::whereNotNull('approved_by')
-            ->orWhereNotNull('rejected_by')
+        // FIX #8: wrap orWhere in a closure so it is scoped correctly and
+        // won't bleed into any future chained conditions.
+        return OrderFund::where(fn ($q) => $q
+                ->whereNotNull('approved_by')
+                ->orWhereNotNull('rejected_by')
+            )
             ->with(['creator', 'approver', 'rejector', 'executor'])
             ->latest()
             ->paginate(30);
